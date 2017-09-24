@@ -130,3 +130,11 @@ STATICFILES_DIRS = [
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Get TWILIO variables
+TWILIO_ACCOUNT_SID=os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_API_KEY=os.environ.get('TWILIO_API_KEY')
+TWILIO_API_KEY_SECRET=os.environ.get('TWILIO_API_KEY_SECRET')
+TWILIO_PUSH_CREDENTIAL_SID=os.environ.get('TWILIO_PUSH_CREDENTIAL_SID')
+TWILIO_APP_SID=os.environ.get('TWILIO_APP_SID')
+TWILIO_AUTH_TOKEN=os.environ.get('TWILIO_AUTH_TOKEN')
