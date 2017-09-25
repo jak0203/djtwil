@@ -58,16 +58,16 @@ def index(request):
 @login_required(login_url='/admin/login/')
 @require_http_methods(['GET', 'POST'])
 def token(request):
+    '''This is the token for the javascript web-app. It returns a json object of the token and the app's identity.'''
     account_sid = settings.TWILIO_ACCOUNT_SID
     auth_token = settings.TWILIO_AUTH_TOKEN
-    api_key = settings.TWILIO_API_KEY
-    api_key_secret = settings.TWILIO_API_KEY_SECRET
-    push_credential_sid = settings.TWILIO_PUSH_CREDENTIAL_SID
     app_sid = settings.TWILIO_VOICE_APP_SID
+    # for now create fake identity
     from faker import Factory
     fake = Factory.create()
     alphanumeric_only = re.compile('[\W_]+')
     identity = alphanumeric_only.sub('', fake.user_name())
+
     # Create a Capability Token
     capability = ClientCapabilityToken(account_sid, auth_token)
     capability.allow_client_outgoing(app_sid)
@@ -81,6 +81,7 @@ def token(request):
 @login_required(login_url='/admin/login/')
 @require_http_methods(['GET', 'POST'])
 def access_token(request):
+    '''This is the token for the swift app. It returns the token as a string.'''
     account_sid = settings.TWILIO_ACCOUNT_SID
     api_key = settings.TWILIO_API_KEY
     api_key_secret = settings.TWILIO_API_KEY_SECRET
@@ -99,6 +100,7 @@ def access_token(request):
 @csrf_exempt
 @validate_twilio_request
 def incoming(request):
+    '''This will be the first entry point for all incoming calls.'''
     # Create a new TwiML response
     resp = VoiceResponse()
 
@@ -120,6 +122,7 @@ def incoming(request):
 @csrf_exempt
 @validate_twilio_request
 def outgoing(request):
+    '''This will be the first point for all outgoing calls.'''
     resp = VoiceResponse()
     resp.say("Congratulations! You have made your first outbound call! Good bye.")
     # resp.dial(callerId='+15123990458')
@@ -130,6 +133,7 @@ def outgoing(request):
 @csrf_exempt
 @validate_twilio_request
 def voice(request):
+    '''This is currently the endpoint that the javascript webapp is using to place calls.'''
     logger.error('REQUEST %s', request.POST)
     phone_pattern = re.compile(r'^[\d\+\-\(\) ]+$')
     resp = VoiceResponse()
