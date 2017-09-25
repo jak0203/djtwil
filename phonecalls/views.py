@@ -1,12 +1,18 @@
+import re
+
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render
+from django.template import loader
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+
 from functools import wraps
 from twilio.jwt.access_token import AccessToken
 from twilio.jwt.access_token.grants import VoiceGrant
-from twilio.twiml.voice_response import VoiceResponse
+from twilio.jwt.client import ClientCapabilityToken
+from twilio.twiml.voice_response import VoiceResponse, Dial
 from twilio.request_validator import RequestValidator
 
 # import the logging library
@@ -41,9 +47,40 @@ def validate_twilio_request(f):
             return HttpResponseForbidden()
     return decorated_function
 
+@login_required(login_url='/admin/login/')
+def index(request):
+    template = loader.get_template('phonecalls/index.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+    # return HttpResponse('HI!')
 
-@require_http_methods(["GET", "POST"])
+
+@login_required(login_url='/admin/login/')
+@require_http_methods(['GET', 'POST'])
 def token(request):
+    account_sid = settings.TWILIO_ACCOUNT_SID
+    auth_token = settings.TWILIO_AUTH_TOKEN
+    api_key = settings.TWILIO_API_KEY
+    api_key_secret = settings.TWILIO_API_KEY_SECRET
+    push_credential_sid = settings.TWILIO_PUSH_CREDENTIAL_SID
+    app_sid = settings.TWILIO_VOICE_APP_SID
+    from faker import Factory
+    fake = Factory.create()
+    alphanumeric_only = re.compile('[\W_]+')
+    identity = alphanumeric_only.sub('', fake.user_name())
+    # Create a Capability Token
+    capability = ClientCapabilityToken(account_sid, auth_token)
+    capability.allow_client_outgoing(app_sid)
+    capability.allow_client_incoming(identity)
+    token = capability.to_jwt()
+    data = {'identity': identity, 'token': token.decode('utf-8')}
+    # Return token info as JSON
+    return JsonResponse(data)
+
+
+@login_required(login_url='/admin/login/')
+@require_http_methods(['GET', 'POST'])
+def access_token(request):
     account_sid = settings.TWILIO_ACCOUNT_SID
     api_key = settings.TWILIO_API_KEY
     api_key_secret = settings.TWILIO_API_KEY_SECRET
@@ -58,7 +95,7 @@ def token(request):
     return HttpResponse(token.to_jwt())
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods(['POST'])
 @csrf_exempt
 @validate_twilio_request
 def incoming(request):
@@ -79,7 +116,7 @@ def incoming(request):
     return HttpResponse(resp)
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods(['GET', 'POST'])
 @csrf_exempt
 @validate_twilio_request
 def outgoing(request):
@@ -89,3 +126,22 @@ def outgoing(request):
     return HttpResponse(str(resp))
 
 
+@require_http_methods(['POST'])
+@csrf_exempt
+@validate_twilio_request
+def voice(request):
+    logger.error('REQUEST %s', request.POST)
+    phone_pattern = re.compile(r'^[\d\+\-\(\) ]+$')
+    resp = VoiceResponse()
+    if "To" in request.POST and request.POST['To'] != '':
+        dial = Dial(caller_id=settings.TWILIO_PHONE_NUMBER)
+        # wrap the phone number or client name in the appropriate TwiML verb
+        # by checking if the number given has only digits and format symbols
+        if phone_pattern.match(request.POST['To']):
+            dial.number(request.POST['To'])
+        else:
+            dial.client(request.POST['To'])
+        resp.append(dial)
+    else:
+        resp.say('Thanks for calling!')
+    return HttpResponse(str(resp))

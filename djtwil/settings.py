@@ -29,6 +29,7 @@ DEBUG = os.environ.get('DEBUG', False)
 # Application definition
 
 INSTALLED_APPS = [
+    'phonecalls.apps.PhonecallsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -138,3 +139,5 @@ TWILIO_API_KEY_SECRET=os.environ.get('TWILIO_API_KEY_SECRET')
 TWILIO_PUSH_CREDENTIAL_SID=os.environ.get('TWILIO_PUSH_CREDENTIAL_SID')
 TWILIO_APP_SID=os.environ.get('TWILIO_APP_SID')
 TWILIO_AUTH_TOKEN=os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER=os.environ.get('TWILIO_PHONE_NUMBER')
+TWILIO_VOICE_APP_SID=os.environ.get('TWILIO_VOICE_APP_SID')
