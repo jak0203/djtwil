@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
 
 from . import views
 
@@ -10,4 +11,6 @@ urlpatterns = [
     url(r'^incoming', views.incoming, name='incoming'),
     url(r'^outgoing', views.outgoing, name='outgoing'),
     url(r'^voice', views.voice, name='voice'),
+    url(r'^contactview', views.contactView.as_view(), name='contactview'),
+    url(r'^contacts', views.contacts, name='contacts'),
 ]
