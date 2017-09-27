@@ -53,17 +53,15 @@ def validate_twilio_request(f):
             return HttpResponseForbidden()
     return decorated_function
 
-
 class contactView(generic.ListView):
     '''This is a temporary view that is used to generate a page that has a list of contacts.'''
     template_name = 'phonecalls/contacts.html'
     context_object_name = 'contact_list'
+    queryset = CONTACTS
 
-    # @method_decorator(login_required(login_url='/admin/login/'))
-    def get_queryset(self):
-        c = CONTACTS
-        logger.error(c)
-        return c
+    @method_decorator(login_required(login_url='/admin/login/'))
+    def dispatch(self, *args, **kwargs):
+        return super(contactView, self).dispatch(*args, **kwargs)
 
 
 @login_required(login_url='/admin/login/')
