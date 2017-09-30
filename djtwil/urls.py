@@ -21,4 +21,5 @@ urlpatterns = [
     # url(r'^index', index),
     url(r'^admin/', admin.site.urls),
     url(r'^phonecalls/', include('phonecalls.urls')),
+    url(r'^contacts/', include('contacts.urls')),
 ]

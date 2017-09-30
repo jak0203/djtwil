@@ -25,11 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 IDENTITY = 'voice_test'
-CONTACTS = [
-    {'name': 'Twilio Test phone', 'number': '+15126653351', 'type': 'test'},
-    {'name': 'Danny Cell', 'number': '+15125658782', 'type': 'human'},
-    {'name': 'Jacki Cell', 'number': '+15129648470', 'type': 'human'}
-]
 
 def validate_twilio_request(f):
     """Validates that incoming requests genuinely originated from Twilio"""
@@ -52,16 +47,6 @@ def validate_twilio_request(f):
         else:
             return HttpResponseForbidden()
     return decorated_function
-
-class contactView(generic.ListView):
-    '''This is a temporary view that is used to generate a page that has a list of contacts.'''
-    template_name = 'phonecalls/contacts.html'
-    context_object_name = 'contact_list'
-    queryset = CONTACTS
-
-    @method_decorator(login_required(login_url='/admin/login/'))
-    def dispatch(self, *args, **kwargs):
-        return super(contactView, self).dispatch(*args, **kwargs)
 
 
 @login_required(login_url='/admin/login/')
@@ -168,11 +153,3 @@ def voice(request):
     return HttpResponse(str(resp))
 
 
-@require_http_methods(['POST'])
-@csrf_exempt
-@validate_twilio_request
-def contacts(request):
-    '''This is a temporary endpoint that will eventually be moved to it's own app. 
-    For now I am faking a contact list, but eventually will store info in DB'''
-
-    return HttpResponse(CONTACTS)

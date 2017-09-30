@@ -30,6 +30,7 @@ DEBUG = os.environ.get('DEBUG', False)
 
 INSTALLED_APPS = [
     'phonecalls.apps.PhonecallsConfig',
+    'contacts.apps.ContactsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
