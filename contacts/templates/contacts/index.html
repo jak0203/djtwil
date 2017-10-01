@@ -4,7 +4,7 @@
 {% for contact in contact_list %}
     <ul>
         <li>{{ contact.name }}</li>
-        <li>{{ contact.number }}</li>
-        <li>{{ contact.type }}</li>
+        <li>{{ contact.phone_number }}</li>
+        <li>{{ contact.get_person_type_display }}</li>
     </ul>
 {% endfor %}
