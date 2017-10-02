@@ -20,6 +20,10 @@ from twilio.request_validator import RequestValidator
 # import the logging library
 import logging
 
+
+from . import views
+from contacts.models import Person
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -52,7 +56,9 @@ def validate_twilio_request(f):
 @login_required(login_url='/admin/login/')
 def index(request):
     template = loader.get_template('phonecalls/index.html')
-    context = {}
+    # context_object_name =
+    # queryset = Person.objects.all()
+    context = {'contact_list': Person.objects.all()}
     return HttpResponse(template.render(context, request))
     # return HttpResponse('HI!')
 
@@ -64,12 +70,14 @@ def token(request):
     account_sid = settings.TWILIO_ACCOUNT_SID
     auth_token = settings.TWILIO_AUTH_TOKEN
     app_sid = settings.TWILIO_VOICE_APP_SID
+    # todo save/get client name into db
     # for now create fake identity
     from faker import Factory
     fake = Factory.create()
     alphanumeric_only = re.compile('[\W_]+')
     identity = alphanumeric_only.sub('', fake.user_name())
 
+    #todo move token genration to app
     # Create a Capability Token
     capability = ClientCapabilityToken(account_sid, auth_token)
     capability.allow_client_outgoing(app_sid)
@@ -120,17 +128,6 @@ def incoming(request):
     return HttpResponse(resp)
 
 
-@require_http_methods(['GET', 'POST'])
-@csrf_exempt
-@validate_twilio_request
-def outgoing(request):
-    '''This will be the first point for all outgoing calls.'''
-    resp = VoiceResponse()
-    resp.say("Congratulations! You have made your first outbound call! Good bye.")
-    # resp.dial(callerId='+15123990458')
-    return HttpResponse(str(resp))
-
-
 @require_http_methods(['POST'])
 @csrf_exempt
 @validate_twilio_request
@@ -151,5 +148,18 @@ def voice(request):
     else:
         resp.say('Thanks for calling!')
     return HttpResponse(str(resp))
+
+
+@require_http_methods(['GET', 'POST'])
+@csrf_exempt
+@validate_twilio_request
+def outgoing(request):
+    '''This will be the first point for all outgoing calls.'''
+    resp = VoiceResponse()
+    resp.say("Congratulations! You have made your first outbound call! Good bye.")
+    # resp.dial(callerId='+15123990458')
+    return HttpResponse(str(resp))
+
+
 
 

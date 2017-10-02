@@ -10,7 +10,7 @@ from .models import Person
 
 
 class listView(generic.ListView):
-    '''This is a temporary view that is used to generate a page that has a list of contacts.'''
+    """This is a temporary view that is used to generate a page that has a list of contacts."""
     template_name = 'contacts/index.html'
     context_object_name = 'contact_list'
     queryset = Person.objects.all()
@@ -21,11 +21,13 @@ class listView(generic.ListView):
 
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 @csrf_exempt
 def contacts(request):
-    '''This is a temporary endpoint that will eventually be moved to it's own app. 
-    For now I am faking a contact list, but eventually will store info in DB'''
-
+    """
+    :param request: 
+    :return: all contacts 
+    """
+    # todo add the option for query parameters
     return HttpResponse(Person.objects.all())
 
