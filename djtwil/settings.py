@@ -31,6 +31,8 @@ DEBUG = os.environ.get('DEBUG', False)
 INSTALLED_APPS = [
     'phonecalls.apps.PhonecallsConfig',
     'contacts.apps.ContactsConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,6 +77,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'djtwil.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'PAGE_SIZE': 10
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

@@ -1,3 +1,7 @@
+To run app on local
+$ foreman start -f Procfile.local
+
+
 # Heroku Django Starter Template
 
 An utterly fantastic project starter template for Django 1.11.
