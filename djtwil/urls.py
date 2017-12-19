@@ -22,12 +22,12 @@ from rest_framework import routers
 from rest_framework.authtoken import views as rest_views
 
 from . import views
-from contacts import views as contact_views
+# from contacts import views as contact_views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'persons', contact_views.PersonViewSet)
+# router.register(r'persons', contact_views.PersonViewSet)
 
 
 urlpatterns = [
