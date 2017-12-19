@@ -1,5 +1,54 @@
 To run app on local
-$ foreman start -f Procfile.local
+
+    $ foreman start -f Procfile.local
+
+
+# Authentication to djtwil api
+## get auth token
+POST to apiTokenAuth with your username and password to retrieve your api token.
+Sample Request
+
+    $ curl -X "POST" "http://localhost:5000/apiTokenAuth/" \
+         -H 'Content-Type: application/json; charset=utf-8' \
+         -d $'{
+      "username": "USERNAME",
+      "password": "PASSWORD"
+    }'
+
+Sample Response
+
+    HTTP/1.0 200 OK
+    Date: Tue, 19 Dec 2017 03:04:09 GMT
+    Server: WSGIServer/0.2 CPython/3.5.1
+    Content-Type: application/json
+    Allow: POST, OPTIONS
+    X-Frame-Options: SAMEORIGIN
+    Content-Length: 52
+    Vary: Cookie
+    
+    {"token":"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"}
+
+## get twilio token
+GET phonecalls/twilioAccessToken/ - pass the api token in as a header to the request
+Sample Request
+
+    $ curl "http://localhost:5000/phonecalls/twilioAccessToken/" \
+         -H 'Authorization: Token XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' \
+         -H 'Accept: application/json'
+
+Sample Response (token is returned as a string):
+
+    HTTP/1.0 200 OK
+    Date: Tue, 19 Dec 2017 03:02:41 GMT
+    Server: WSGIServer/0.2 CPython/3.5.1
+    X-Frame-Options: SAMEORIGIN
+    Allow: OPTIONS, POST, GET
+    Vary: Accept
+    Content-Length: 575
+    Content-Type: text/html; charset=utf-8
+    
+    VERY_LONG_TOKEN
+
 
 
 # Heroku Django Starter Template

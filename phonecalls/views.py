@@ -1,6 +1,7 @@
 import re
 
 from django.conf import settings
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render
@@ -16,6 +17,8 @@ from twilio.jwt.access_token.grants import VoiceGrant
 from twilio.jwt.client import ClientCapabilityToken
 from twilio.twiml.voice_response import VoiceResponse, Dial
 from twilio.request_validator import RequestValidator
+
+from rest_framework.decorators import api_view
 
 # import the logging library
 import logging
@@ -60,11 +63,10 @@ def index(request):
     # queryset = Person.objects.all()
     context = {'contact_list': Person.objects.all()}
     return HttpResponse(template.render(context, request))
-    # return HttpResponse('HI!')
 
 
-@login_required(login_url='/admin/login/')
 @require_http_methods(['GET', 'POST'])
+@api_view(["GET"])
 def token(request):
     '''This is the token for the javascript web-app. It returns a json object of the token and the app's identity.'''
     account_sid = settings.TWILIO_ACCOUNT_SID
@@ -88,9 +90,9 @@ def token(request):
     return JsonResponse(data)
 
 
-@login_required(login_url='/admin/login/')
 @require_http_methods(['GET', 'POST'])
-def access_token(request):
+@api_view(['GET', 'POST'])
+def twilio_access_token(request):
     '''This is the token for the swift app. It returns the token as a string.'''
     account_sid = settings.TWILIO_ACCOUNT_SID
     api_key = settings.TWILIO_API_KEY
