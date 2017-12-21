@@ -8,7 +8,7 @@ To run app on local
 POST to apiTokenAuth with your username and password to retrieve your api token.
 Sample Request
 
-    $ curl -X "POST" "http://localhost:5000/apiTokenAuth/" \
+    $ curl -X "POST" "http://localhost:5000/api/tokenAuth/" \
          -H 'Content-Type: application/json; charset=utf-8' \
          -d $'{
       "username": "USERNAME",
