@@ -1,2 +1,2 @@
 tun: ngrok start http
-web: python manage.py runserver 0.0.0.0:5000 > log.txt
+web: PYTHONUNBUFFERED=true python manage.py runserver 0.0.0.0:5000 > log.txt

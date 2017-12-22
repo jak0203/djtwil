@@ -1,37 +1,24 @@
 import re
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
-from django.shortcuts import render
-from django.template import loader
-from django.utils.decorators import method_decorator
-from django.views import generic
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from functools import wraps
+from rest_framework.decorators import api_view
+
 from twilio.jwt.access_token import AccessToken
 from twilio.jwt.access_token.grants import VoiceGrant
 from twilio.jwt.client import ClientCapabilityToken
-from twilio.twiml.voice_response import VoiceResponse, Dial
 from twilio.request_validator import RequestValidator
+from twilio.twiml.voice_response import VoiceResponse, Dial
 
-from rest_framework.decorators import api_view
-
-# import the logging library
 import logging
-
-
-from . import views
-from contacts.models import Person
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-
-IDENTITY = 'voice_test'
 
 def validate_twilio_request(f):
     """Validates that incoming requests genuinely originated from Twilio"""
@@ -40,15 +27,13 @@ def validate_twilio_request(f):
         # Create an instance of the RequestValidator class
         validator = RequestValidator(settings.TWILIO_AUTH_TOKEN)
 
-        # Validate the request using its URL, POST data,
-        # and X-TWILIO-SIGNATURE header
+        # Validate the request using its URL, POST data, and X-TWILIO-SIGNATURE header
         request_valid = validator.validate(
             request.build_absolute_uri(),
             request.POST,
             request.META.get('HTTP_X_TWILIO_SIGNATURE', ''))
 
-        # Continue processing the request if it's valid, return a 403 error if
-        # it's not
+        # Continue processing the request if it's valid, return a 403 error if it's not
         if request_valid:
             return f(request, *args, **kwargs)
         else:
@@ -56,17 +41,74 @@ def validate_twilio_request(f):
     return decorated_function
 
 
-@login_required(login_url='/admin/login/')
-def index(request):
-    template = loader.get_template('phonecalls/index.html')
-    # context_object_name =
-    # queryset = Person.objects.all()
-    context = {'contact_list': Person.objects.all()}
-    return HttpResponse(template.render(context, request))
+@api_view(['GET', 'POST'])
+def access_token(request):
+    """
+    This is the token for the swift app.
+    :param request:
+    :return: string
+    """
+    account_sid = settings.TWILIO_ACCOUNT_SID
+    api_key = settings.TWILIO_API_KEY
+    api_key_secret = settings.TWILIO_API_KEY_SECRET
+    push_credential_sid = settings.TWILIO_PUSH_CREDENTIAL_SID
+    app_sid = settings.TWILIO_APP_SID
+    grant = VoiceGrant(
+        push_credential_sid=push_credential_sid,
+        outgoing_application_sid=app_sid
+    )
+    access_token = AccessToken(account_sid, api_key, api_key_secret, identity=str(request.user))
+    access_token.add_grant(grant)
+    return HttpResponse(access_token.to_jwt())
 
 
-@require_http_methods(['GET', 'POST'])
-@api_view(["GET"])
+@api_view(['POST'])
+@csrf_exempt
+@validate_twilio_request
+def incoming(request):
+    """
+    Entry point for all incoming webapp
+    :param request:
+    :return: TwiML
+    """
+    # Create a new TwiML response
+    resp = VoiceResponse()
+
+    # <Say> a message to the caller
+    from_number = request.POST['From']
+    body = """
+    Thanks for calling!
+
+    Your phone number is {0}. I got your call because of Twilio's webhook.
+
+    Goodbye! YAHOO!""".format(' '.join(from_number))
+    resp.say(body)
+
+    # Return the TwiML
+    return HttpResponse(resp)
+
+
+@api_view(['GET', 'POST'])
+@csrf_exempt
+@validate_twilio_request
+def outgoing(request):
+    """
+    Initial point for all outgoing calls
+    :param request:
+    :return:
+    """
+    resp = VoiceResponse()
+    resp.say("Congratulations! You have made your first outbound call! Good bye.")
+    # resp.dial(callerId='+15123990458')
+    return HttpResponse(str(resp))
+
+
+########################################################################################################################
+#EVERYTHING BELOW HERE are specific for the javascript app and MUST BE REWRITTEN
+########################################################################################################################
+
+
+@api_view(['GET', 'POST'])
 def token(request):
     '''This is the token for the javascript web-app. It returns a json object of the token and the app's identity.'''
     account_sid = settings.TWILIO_ACCOUNT_SID
@@ -90,44 +132,9 @@ def token(request):
     return JsonResponse(data)
 
 
-@require_http_methods(['GET', 'POST'])
-@api_view(['GET', 'POST'])
-def twilio_access_token(request):
-    '''This is the token for the swift app. It returns the token as a string.'''
-    account_sid = settings.TWILIO_ACCOUNT_SID
-    api_key = settings.TWILIO_API_KEY
-    api_key_secret = settings.TWILIO_API_KEY_SECRET
-    push_credential_sid = settings.TWILIO_PUSH_CREDENTIAL_SID
-    app_sid = settings.TWILIO_APP_SID
-    grant = VoiceGrant(
-        push_credential_sid=push_credential_sid,
-        outgoing_application_sid=app_sid
-    )
-    token = AccessToken(account_sid, api_key, api_key_secret, identity=IDENTITY)
-    token.add_grant(grant)
-    return HttpResponse(token.to_jwt())
 
 
-@require_http_methods(['POST'])
-@csrf_exempt
-@validate_twilio_request
-def incoming(request):
-    '''This will be the first entry point for all incoming calls.'''
-    # Create a new TwiML response
-    resp = VoiceResponse()
 
-    # <Say> a message to the caller
-    from_number = request.POST['From']
-    body = """
-    Thanks for calling!
-
-    Your phone number is {0}. I got your call because of Twilio's webhook.
-
-    Goodbye! YAHOO!""".format(' '.join(from_number))
-    resp.say(body)
-
-    # Return the TwiML
-    return HttpResponse(resp)
 
 
 @require_http_methods(['POST'])
@@ -152,15 +159,6 @@ def voice(request):
     return HttpResponse(str(resp))
 
 
-@require_http_methods(['GET', 'POST'])
-@csrf_exempt
-@validate_twilio_request
-def outgoing(request):
-    '''This will be the first point for all outgoing calls.'''
-    resp = VoiceResponse()
-    resp.say("Congratulations! You have made your first outbound call! Good bye.")
-    # resp.dial(callerId='+15123990458')
-    return HttpResponse(str(resp))
 
 
 

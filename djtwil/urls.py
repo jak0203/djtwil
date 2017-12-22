@@ -24,20 +24,21 @@ from rest_framework.authtoken import views as rest_views
 
 from . import views as admin_views
 from contacts import views as contact_views
+from phonecalls import views as phonecall_views
 
-# API routes
+
+# Rest API routes
 router = routers.DefaultRouter()
 router.register(r'users', admin_views.UserViewSet)
 router.register(r'groups', admin_views.GroupViewSet)
 router.register(r'contacts', contact_views.PersonViewSet)
 
+
 urlpatterns = [
-    url(r'^api/', include(router.urls)),
-    url(r'^api/tokenAuth/', rest_views.obtain_auth_token),
-    # url(r'^index', index),
     url(r'^admin/', admin.site.urls),
     url(r'^login/', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
-    url(r'^phonecalls/', include('phonecalls.urls')),
-    url(r'^contacts/', include('contacts.urls')),
+
+    url(r'^api/', include(router.urls)),
+    url(r'^api/token/', rest_views.obtain_auth_token),
 ]
