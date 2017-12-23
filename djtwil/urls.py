@@ -35,7 +35,7 @@ router.register(r'contacts', contact_views.PersonViewSet)
 
 
 urlpatterns = [
-    url(r'^index/', login_required(views.ReactAppView.as_view(), login_url='/admin/login')),
+    url(r'^$', login_required(views.ReactAppView.as_view(), login_url='/admin/login')),
 
     url(r'^admin/', admin.site.urls),
     url(r'^login/', auth_views.login, name='login'),
