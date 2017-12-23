@@ -59,7 +59,8 @@ def access_token(request):
     )
     access_token = AccessToken(account_sid, api_key, api_key_secret, identity=str(request.user))
     access_token.add_grant(grant)
-    return HttpResponse(access_token.to_jwt())
+    data = {'identity': str(request.user), 'token': access_token.to_jwt().decode('utf-8')}
+    return JsonResponse(data)
 
 
 @api_view(['POST'])

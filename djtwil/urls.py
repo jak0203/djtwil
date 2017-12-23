@@ -42,4 +42,6 @@ urlpatterns = [
 
     url(r'^api/', include(router.urls)),
     url(r'^api/token/', rest_views.obtain_auth_token),
+
+    url(r'^phonecalls/', include('phonecalls.urls'))
 ]
