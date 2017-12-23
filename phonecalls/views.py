@@ -72,8 +72,8 @@ def capability_token(request):
     account_sid = settings.TWILIO_ACCOUNT_SID
     auth_token = settings.TWILIO_AUTH_TOKEN
     app_sid = settings.TWILIO_VOICE_APP_SID
-    identity = str(request.user)
-
+    client_type = request.GET.get('client_type', 'unknown')
+    identity = '_'.join([str(request.user), client_type])
     # Create a Capability Token
     capability = ClientCapabilityToken(account_sid, auth_token)
     capability.allow_client_outgoing(app_sid)

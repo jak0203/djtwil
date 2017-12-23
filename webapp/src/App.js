@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import logo from './logo.svg';
 import './App.css';
-//import blah from 'script-loader!./twilio.min.js'
-//require('script-loader!./twilio.min.js');
 import Script from 'react-load-script'
 
 class NumberInputText extends Component {
@@ -65,6 +63,7 @@ class App extends Component {
     scriptLoaded: false,
     countryCode: 1,
     muted: false,
+    scriptError: false,
   }
 
   // Handle number input
@@ -85,12 +84,13 @@ class App extends Component {
 
   // Make an outbound call with the current number,
   // or hang up the current call
-  handleToggleCall = () => {
+  handleToggleCall = (ev) => {
     if (!this.state.onPhone) {
       this.setState({
         muted: false,
         onPhone: true
-      })
+      });
+      console.log('twilio device', window.Twilio);
       // make outbound call with current number
       var n = '+' + this.state.countryCode + this.state.currentNumber.replace(/\D/g, '');
       window.Twilio.Device.connect({ number: n });
@@ -100,22 +100,42 @@ class App extends Component {
       window.Twilio.Device.disconnectAll();
     }
   };
-
-
   handleScriptError() {
     this.setState({ scriptError: true })
   }
 
   handleScriptLoad() {
     this.setState({ scriptLoaded: true })
-    console.log('Twilio script loaded!', window.Twilio)
+    console.log('Twilio script loaded!', window.Twilio);
+    axios.get('/phonecalls/capabilityToken?client_type=reactweb')
+    .then(res => {
+      this.setState({phonecallToken: res && res.data && res.data.token});
+      window.Twilio.Device.setup(res.data.token);
+      console.log('Twilio device setup', window.Twilio);
+      this.setState({log: 'Ready to call'});
+      // Configure event handlers for Twilio Device
+      window.Twilio.Device.disconnect( () => {
+        this.setState({
+          onPhone: false,
+          log: 'Call ended.'
+        });
+      });
+      window.Twilio.Device.ready( () => {
+        this.log = 'Connected';
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      this.setState({log: 'Could not fetch token, see console.log'});
+    });
+
   }
 
   render() {
     if (!this.state.scriptLoaded) {
       return (
         <Script
-          url="https://media.twiliocdn.com/sdk/js/client/v1.4/twilio.js"
+          url="https://media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js"
           onError={this.handleScriptError.bind(this)}
           onLoad={this.handleScriptLoad.bind(this)}
         />
@@ -125,12 +145,9 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Welcome to the Twilio Dialer</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        <button type="button" onClick={this.onClick}>Get Twilio Token</button>
+        <p></p>
         <div id="dialer">
           <div id="dial-form" className="input-group input-group-sm">
             <NumberInputText
@@ -154,19 +171,6 @@ class App extends Component {
         </div>
       </div>
     );
-  }
-
-  onClick = (ev) => {
-    console.log("Getting Twilio token!!!");
-    axios.get('/phonecalls/capabilityToken/')
-    .then(res => {
-      console.log("res", res)
-      this.setState({phonecallToken: res && res.data && res.data.token})
-          window.Twilio.Device.setup(res.data.token)
-    }).catch((err) => {
-      console.log(err);
-      this.setState({log: 'Could not fetch token, see console.log'});
-    });
   }
 }
 
