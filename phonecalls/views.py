@@ -147,7 +147,7 @@ def voice(request):
             dial.client(request.POST['To'])
         resp.append(dial)
     else:
-        resp.say('Thanks for calling!')
+        resp.say('Thanks for calling! Yahooooooooooo!')
     return HttpResponse(str(resp))
 
 

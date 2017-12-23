@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 
 from django.conf.urls import url, include
 from rest_framework import routers
@@ -34,7 +35,7 @@ router.register(r'contacts', contact_views.PersonViewSet)
 
 
 urlpatterns = [
-    url(r'^index/', views.ReactAppView.as_view()),
+    url(r'^index/', login_required(views.ReactAppView.as_view(), login_url='/admin/login')),
 
     url(r'^admin/', admin.site.urls),
     url(r'^login/', auth_views.login, name='login'),
