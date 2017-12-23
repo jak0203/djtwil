@@ -22,19 +22,20 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from rest_framework.authtoken import views as rest_views
 
-from . import views as admin_views
+from . import views
 from contacts import views as contact_views
-from phonecalls import views as phonecall_views
 
 
 # Rest API routes
 router = routers.DefaultRouter()
-router.register(r'users', admin_views.UserViewSet)
-router.register(r'groups', admin_views.GroupViewSet)
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
 router.register(r'contacts', contact_views.PersonViewSet)
 
 
 urlpatterns = [
+    url(r'^index/', views.ReactAppView.as_view()),
+
     url(r'^admin/', admin.site.urls),
     url(r'^login/', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
