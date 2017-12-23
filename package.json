@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "postinstall": "cd webapp && npm install"
+    "postinstall": "cd webapp && npm install && npm run build"
   }
 }
