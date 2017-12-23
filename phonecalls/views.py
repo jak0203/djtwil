@@ -63,6 +63,27 @@ def access_token(request):
     return JsonResponse(data)
 
 
+@api_view(['GET', 'POST'])
+def capability_token(request):
+    """
+    :param request:
+    :return:
+    """
+    account_sid = settings.TWILIO_ACCOUNT_SID
+    auth_token = settings.TWILIO_AUTH_TOKEN
+    app_sid = settings.TWILIO_VOICE_APP_SID
+    identity = str(request.user)
+
+    # Create a Capability Token
+    capability = ClientCapabilityToken(account_sid, auth_token)
+    capability.allow_client_outgoing(app_sid)
+    capability.allow_client_incoming(identity)
+    token = capability.to_jwt()
+    data = {'identity': identity, 'token': token.decode('utf-8')}
+    # Return token info as JSON
+    return JsonResponse(data)
+
+
 @api_view(['POST'])
 @csrf_exempt
 @validate_twilio_request
@@ -107,36 +128,6 @@ def outgoing(request):
 ########################################################################################################################
 #EVERYTHING BELOW HERE are specific for the javascript app and MUST BE REWRITTEN
 ########################################################################################################################
-
-
-@api_view(['GET', 'POST'])
-def token(request):
-    '''This is the token for the javascript web-app. It returns a json object of the token and the app's identity.'''
-    account_sid = settings.TWILIO_ACCOUNT_SID
-    auth_token = settings.TWILIO_AUTH_TOKEN
-    app_sid = settings.TWILIO_VOICE_APP_SID
-    # todo save/get client name into db
-    # for now create fake identity
-    from faker import Factory
-    fake = Factory.create()
-    alphanumeric_only = re.compile('[\W_]+')
-    identity = alphanumeric_only.sub('', fake.user_name())
-
-    #todo move token genration to app
-    # Create a Capability Token
-    capability = ClientCapabilityToken(account_sid, auth_token)
-    capability.allow_client_outgoing(app_sid)
-    capability.allow_client_incoming(identity)
-    token = capability.to_jwt()
-    data = {'identity': identity, 'token': token.decode('utf-8')}
-    # Return token info as JSON
-    return JsonResponse(data)
-
-
-
-
-
-
 
 @require_http_methods(['POST'])
 @csrf_exempt
