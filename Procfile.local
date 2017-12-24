@@ -1,3 +1,3 @@
-tun: ngrok start http
-web: PYTHONUNBUFFERED=true python manage.py runserver 0.0.0.0:5000 > log.txt
-rct: cd webapp/ && npm start
+tun: ngrok start http | tee log-ngrok.txt
+web: python -u manage.py runserver 0.0.0.0:5000 | tee log-python.txt
+rct: cd webapp/ && npm start | tee log-react.txt

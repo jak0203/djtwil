@@ -108,3 +108,6 @@ db.sqlite3
 
 # logs
 log.txt
+log-ngrok.txt
+log-python.txt
+log-react.txt
