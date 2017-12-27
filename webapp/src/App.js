@@ -93,7 +93,7 @@ class App extends Component {
       console.log('twilio device', window.Twilio);
       // make outbound call with current number
       var n = '+' + this.state.countryCode + this.state.currentNumber.replace(/\D/g, '');
-      window.Twilio.Device.connect({ number: n });
+      window.Twilio.Device.connect({ To: n });
       this.setState({log: 'Calling ' + n})
     } else {
       // hang up call in progress

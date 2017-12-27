@@ -37,6 +37,7 @@ def validate_twilio_request(f):
         if request_valid:
             return f(request, *args, **kwargs)
         else:
+            logger.warning(f'Invalid twilio request: {request}')
             return HttpResponseForbidden()
     return decorated_function
 
@@ -44,7 +45,6 @@ def validate_twilio_request(f):
 @api_view(['GET', 'POST'])
 def access_token(request):
     """
-    This is the token for the swift app.
     :param request:
     :return: string
     """
@@ -89,7 +89,7 @@ def capability_token(request):
 @validate_twilio_request
 def incoming(request):
     """
-    Entry point for all incoming webapp
+    Entry point for all incoming calls to the twilio phone number
     :param request:
     :return: TwiML
     """
@@ -103,7 +103,7 @@ def incoming(request):
 
     Your phone number is {0}. I got your call because of Twilio's webhook.
 
-    Goodbye! YAHOO!""".format(' '.join(from_number))
+    Goodbye! """.format(' '.join(from_number))
     resp.say(body)
 
     # Return the TwiML
@@ -115,7 +115,7 @@ def incoming(request):
 @validate_twilio_request
 def outgoing(request):
     """
-    Initial point for all outgoing calls
+    Used if when making a click to call request from the web, you want connect using your phone instead of using the app
     :param request:
     :return:
     """
@@ -125,33 +125,30 @@ def outgoing(request):
     return HttpResponse(str(resp))
 
 
-########################################################################################################################
-#EVERYTHING BELOW HERE are specific for the javascript app and MUST BE REWRITTEN
-########################################################################################################################
-
 @require_http_methods(['POST'])
 @csrf_exempt
 @validate_twilio_request
 def voice(request):
-    '''This is currently the endpoint that the javascript webapp is using to place calls.'''
-    logger.error('REQUEST %s', request.POST)
+    """
+    This is responsible for making the outgoing calls placed by the webapps
+    :param request:
+    :return:
+    """
     phone_pattern = re.compile(r'^[\d\+\-\(\) ]+$')
     resp = VoiceResponse()
-    if "To" in request.POST and request.POST['To'] != '':
+    if 'To' in request.POST and request.POST['To'] != '':
         dial = Dial(caller_id=settings.TWILIO_PHONE_NUMBER)
         # wrap the phone number or client name in the appropriate TwiML verb
         # by checking if the number given has only digits and format symbols
         if phone_pattern.match(request.POST['To']):
             dial.number(request.POST['To'])
         else:
+            # Currently not being used
+            # This allows us to call specific clients instead of phone numbers
             dial.client(request.POST['To'])
         resp.append(dial)
     else:
-        resp.say('Thanks for calling! Yahooooooooooo!')
+        resp.say('Please enter a valid phone number.')
+        logger.warning(f'Request received without a To field: {request.POST}')
     return HttpResponse(str(resp))
-
-
-
-
-
 
