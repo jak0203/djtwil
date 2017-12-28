@@ -23,7 +23,7 @@ A django backend server to handle Twilio calls and a frontend React web dialer.
     ```
     $ pip install -r requirements.txt
     ```
-4. Cd into the webapp directory and install react
+4. Cd into the webapp directory and install react app dependencies
     ```
     $ cd webapp
     $ npm install
@@ -74,6 +74,7 @@ If you want to use a postgres db instead of sql lite, uncomment line 4 and updat
 11. Login by navigating to http://localhost:5000/admin/
 
 ### Deploy to Heroku
+TODO
 
 
 ### Development notes
