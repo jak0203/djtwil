@@ -36,26 +36,28 @@ A django backend server to handle Twilio calls and a frontend React web dialer.
 If you want to use a postgres db instead of sql lite, uncomment line 4 and update the URL with your postgres db information.
 
 6. Set up ngrok
-If you don't already have a server configured to use as your webhook, [ngrok](https://ngrok.com/) is a great tool for testing webhooks locally.
-Once you have your ngrok URL, paste it into the .env file.
-If you are using a free ngrok account, you'll need to remove line 1 from the Procfile.local and run ngrok in a separate terminal window.
+
+    * If you don't already have a server configured to use as your webhook, [ngrok](https://ngrok.com/) is a great tool for testing webhooks locally.
+    * Once you have your ngrok URL, paste it into the .env file.
+    * If you are using a free ngrok account, you'll need to remove line 1 from the Procfile.local and run ngrok in a separate terminal window.
 
 7. Set up Twilio
-Log into your [twilio](https://www.twilio.com/) account and gather the account information into the .env file.
-The account SID and token should be found on your main [dashboard](https://www.twilio.com/console).
-The rest API key and secret should be under the [programable voice dashboard](https://www.twilio.com/console/voice/runtime/api-keys).
-The push credential sid should be under the [programmable voice credentials](https://www.twilio.com/console/voice/credentials).
 
-Set up the following twiml apps.
-a. Voice
-Request URL: https://{NGROK URL}.ngrok.io/phonecalls/voice/
-Copy the Application SID into the .env file TWILIO_VOICE_APP_SID
-b. Outgoing
-Request URL: https://{NGROK URL}.ngrok.io/phonecalls/outgoing/
-Copy the Application SID into the .env file TWILIO_APP_SID
-c. Incoming
-Request URL: https://{NGROK URL}.ngrok.io/phonecalls/incoming/
-Under your phone number, voice and fax; Set the accept incoming voice calls configure with a TwiML App and select the incoming twiml app just created.
+    * Log into your [twilio](https://www.twilio.com/) account and gather the account information into the .env file.
+    * The account SID and token should be found on your main [dashboard](https://www.twilio.com/console).
+    * The rest API key and secret should be under the [programable voice dashboard](https://www.twilio.com/console/voice/runtime/api-keys).
+    * The push credential sid should be under the [programmable voice credentials](https://www.twilio.com/console/voice/credentials).
+
+    * Set up the following twiml apps.
+        1. Voice
+            * Request URL: https://{NGROK URL}.ngrok.io/phonecalls/voice/
+            * Copy the Application SID into the .env file TWILIO_VOICE_APP_SID
+        2. Outgoing
+            * Request URL: https://{NGROK URL}.ngrok.io/phonecalls/outgoing/
+            * Copy the Application SID into the .env file TWILIO_APP_SID
+        3. Incoming
+            * Request URL: https://{NGROK URL}.ngrok.io/phonecalls/incoming/
+            * Under your phone number, voice and fax; Set the accept incoming voice calls configure with a TwiML App and select the incoming twiml app just created.
 
 8. Run database migrations
     ```
