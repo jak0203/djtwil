@@ -107,7 +107,7 @@ class App extends Component {
   handleScriptLoad() {
     this.setState({ scriptLoaded: true })
     console.log('Twilio script loaded!', window.Twilio);
-    axios.get('/phonecalls/capabilityToken?client_type=reactweb')
+    axios.get('/phonecalls/capabilityToken?client=reactweb')
     .then(res => {
       this.setState({phonecallToken: res && res.data && res.data.token});
       window.Twilio.Device.setup(res.data.token);

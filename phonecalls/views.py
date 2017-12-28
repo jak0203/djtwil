@@ -14,6 +14,8 @@ from twilio.jwt.client import ClientCapabilityToken
 from twilio.request_validator import RequestValidator
 from twilio.twiml.voice_response import VoiceResponse, Dial
 
+from .models import UserApp
+
 import logging
 
 # Get an instance of a logger
@@ -72,8 +74,10 @@ def capability_token(request):
     account_sid = settings.TWILIO_ACCOUNT_SID
     auth_token = settings.TWILIO_AUTH_TOKEN
     app_sid = settings.TWILIO_VOICE_APP_SID
-    client_type = request.GET.get('client_type', 'unknown')
-    identity = '_'.join([str(request.user), client_type])
+    client = request.GET.get('client', 'unknown')
+    user_app, created = UserApp.objects.update_or_create(user=request.user, app=client, is_online=True)
+    identity = '_'.join([str(request.user), user_app.app])
+
     # Create a Capability Token
     capability = ClientCapabilityToken(account_sid, auth_token)
     capability.allow_client_outgoing(app_sid)
