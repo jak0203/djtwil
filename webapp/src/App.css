@@ -106,6 +106,19 @@ p {
   font-family: Helvetica, sans-serif;
   margin: 20px auto;
   padding: 10;
-  width: 240px;
+  width: 270px;
   text-align: center;
+}
+
+
+.table {
+  padding: 5px;
+  font-size: 12px;
+  width: 270px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.table tbody tr:hover td, .table tbody tr:hover th {
+  background-color: #fcd6d9;
 }

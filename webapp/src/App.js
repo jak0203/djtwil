@@ -53,6 +53,32 @@ class DTMFTone extends Component {
   }
 }
 
+// render contact list
+class ContactList extends Component {
+  render() {
+    return (
+      <table className="table table table-bordered table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone Number</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.props.contactList.map((element) => {
+            return(
+              <tr key={element.name} onClick={() => this.props.onNumberSelect(element.phone_number)}>
+                <td>{element.name}</td>
+                <td>{element.phone_number}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    )
+  }
+}
+
 
 class App extends Component {
   state = {
@@ -64,20 +90,30 @@ class App extends Component {
     countryCode: 1,
     muted: false,
     scriptError: false,
+    contacts: [],
   }
 
   // Handle number input
   handleChangeNumber = (e) => {
     this.setState({
       currentNumber: e.target.value,
-      isValidNumber: /^([0-9]|#|\*)+$/.test(e.target.value.replace(/[-()\s]/g,''))
+      isValidNumber: this.isValidNumber(e.target.value)
     });
   };
 
-  // Handle muting
-  handleToggleMute= () => {
-    var muted = !this.state.muted;
+  // Check if the phone number is valid
+  isValidNumber = (number) => /^([0-9]|#|\*)+$/.test(number.replace(/[-()\s]/g,''))
 
+  onNumberSelect = (number) => {
+    this.setState({
+      currentNumber: number,
+      isValidNumber: this.isValidNumber(number),
+    });
+  }
+
+  // Handle muting
+  handleToggleMute = () => {
+    var muted = !this.state.muted;
     this.setState({muted: muted});
     window.Twilio.Device.activeConnection().mute(muted);
   };
@@ -100,13 +136,8 @@ class App extends Component {
       window.Twilio.Device.disconnectAll();
     }
   };
-  handleScriptError() {
-    this.setState({ scriptError: true })
-  }
 
-  handleScriptLoad() {
-    this.setState({ scriptLoaded: true })
-    console.log('Twilio script loaded!', window.Twilio);
+  getCapabilityToken = () => {
     axios.get('/phonecalls/capabilityToken?client=reactweb')
     .then(res => {
       this.setState({phonecallToken: res && res.data && res.data.token});
@@ -128,7 +159,26 @@ class App extends Component {
       console.log(err);
       this.setState({log: 'Could not fetch token, see console.log'});
     });
+  }
 
+  getContactList = () => {
+    axios.get('/api/contacts/')
+    .then(res => {
+      console.log(res);
+      this.setState({contacts: res.data})
+    })
+
+  }
+
+  handleScriptError() {
+    this.setState({ scriptError: true })
+  };
+
+  handleScriptLoad = () => {
+    this.setState({ scriptLoaded: true })
+    console.log('Twilio script loaded!', window.Twilio);
+    this.getCapabilityToken();
+    this.getContactList();
   }
 
   render() {
@@ -169,6 +219,13 @@ class App extends Component {
           { this.state.onPhone ? <DTMFTone/> : null }
           <LogBox text={this.state.log}/>
         </div>
+        <div className="Contacts">
+          <ContactList
+            contactList={this.state.contacts}
+            onNumberSelect={this.onNumberSelect}
+          />
+        </div>
+
       </div>
     );
   }
