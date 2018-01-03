@@ -73,6 +73,11 @@ If you want to use a postgres db instead of sql lite, uncomment line 4 and updat
     ```
 11. Login by navigating to http://localhost:5000/admin/
 
+### Run Tests
+Set up .env.test with your testing API credentials.
+
+    $ honcho -e .env.test -f Procfile.local run ./manage.py test
+
 ### Deploy to Heroku
 TODO
 
