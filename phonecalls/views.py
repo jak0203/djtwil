@@ -48,6 +48,7 @@ def validate_twilio_request(f):
 @api_view(['GET', 'POST'])
 def access_token(request):
     """
+    To be deprecated
     :param request:
     :return: string
     """
@@ -126,7 +127,6 @@ def outgoing(request):
     """
     resp = VoiceResponse()
     resp.say("Congratulations! You have made your first outbound call! Good bye.")
-    # resp.dial(callerId='+15123990458')
     return HttpResponse(str(resp))
 
 
@@ -141,6 +141,7 @@ def voice(request):
     """
     phone_pattern = re.compile(r'^[\d\+\-\(\) ]+$')
     resp = VoiceResponse()
+
     if 'To' in request.POST and request.POST['To'] != '':
         dial = Dial(caller_id=settings.TWILIO_PHONE_NUMBER)
         # wrap the phone number or client name in the appropriate TwiML verb
@@ -157,3 +158,8 @@ def voice(request):
         logger.warning(f'Request received without a To field: {request.POST}')
     return HttpResponse(str(resp))
 
+@require_http_methods(['POST'])
+@csrf_exempt
+@validate_twilio_request
+def twilio_callbacks(request):
+    return

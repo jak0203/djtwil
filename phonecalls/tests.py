@@ -41,11 +41,11 @@ class LoggedInViewsTestCase(TestCase):
     @override_settings(DEBUG=True)
     def test_voice(self):
         tvr = self.twilio_voice_request.copy()
-        tvr['To'] = '+15129648470'
+        tvr['To'] = '+15551234567'
 
         voice_response = ('<?xml version="1.0" encoding="UTF-8"?>'
-                          '<Response><Dial callerId="+15122336616">'
-                          '<Number>+15129648470</Number>'
+                          '<Response><Dial callerId="+15557654321">'
+                          '<Number>+15551234567</Number>'
                           '</Dial></Response>')
         response = self.client.post(
             '/phonecalls/voice/',
@@ -60,7 +60,7 @@ class LoggedInViewsTestCase(TestCase):
         tvr['To'] = 'jacki_react'
 
         voice_response = ('<?xml version="1.0" encoding="UTF-8"?>'
-                          '<Response><Dial callerId="+15122336616">'
+                          '<Response><Dial callerId="+15557654321">'
                           '<Client>jacki_react</Client>'
                           '</Dial></Response>')
         response = self.client.post(
