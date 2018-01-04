@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.conf import settings
@@ -35,8 +36,8 @@ def validate_twilio_request(f):
             request.POST,
             request.META.get('HTTP_X_TWILIO_SIGNATURE', ''))
 
-        # Continue processing the request if it's valid, return a 403 error if it's not
-        if request_valid:
+        # Continue processing the request if it's valid (or if DEBUG is True), return a 403 error if it's not
+        if request_valid or settings.DEBUG:
             return f(request, *args, **kwargs)
         else:
             logger.warning(f'Invalid twilio request: {request}')
