@@ -1,4 +1,3 @@
-import json
 import re
 
 from django.conf import settings
@@ -9,8 +8,7 @@ from django.views.decorators.http import require_http_methods
 from functools import wraps
 from rest_framework.decorators import api_view
 
-from twilio.jwt.access_token import AccessToken
-from twilio.jwt.access_token.grants import VoiceGrant
+from twilio.jwt.access_token import AccessToken, grants
 from twilio.jwt.client import ClientCapabilityToken
 from twilio.request_validator import RequestValidator
 from twilio.twiml.voice_response import VoiceResponse, Dial
@@ -57,13 +55,13 @@ def access_token(request):
     api_key_secret = settings.TWILIO_API_KEY_SECRET
     push_credential_sid = settings.TWILIO_PUSH_CREDENTIAL_SID
     app_sid = settings.TWILIO_APP_SID
-    grant = VoiceGrant(
+    grant = grants.VoiceGrant(
         push_credential_sid=push_credential_sid,
         outgoing_application_sid=app_sid
     )
-    access_token = AccessToken(account_sid, api_key, api_key_secret, identity=str(request.user))
-    access_token.add_grant(grant)
-    data = {'identity': str(request.user), 'token': access_token.to_jwt().decode('utf-8')}
+    token = AccessToken(account_sid, api_key, api_key_secret, identity=str(request.user))
+    token.add_grant(grant)
+    data = {'identity': str(request.user), 'token': token.to_jwt().decode('utf-8')}
     return JsonResponse(data)
 
 
@@ -139,7 +137,7 @@ def voice(request):
     :param request:
     :return:
     """
-    phone_pattern = re.compile(r'^[\d\+\-\(\) ]+$')
+    phone_pattern = re.compile(r'^[\d+\-]+$')
     resp = VoiceResponse()
 
     if 'To' in request.POST and request.POST['To'] != '':
@@ -157,6 +155,7 @@ def voice(request):
         resp.say('Please enter a valid phone number.')
         logger.warning(f'Request received without a To field: {request.POST}')
     return HttpResponse(str(resp))
+
 
 @require_http_methods(['POST'])
 @csrf_exempt

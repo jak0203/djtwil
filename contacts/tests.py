@@ -4,12 +4,11 @@ from tests.data_generator import DataGenerator
 
 class ContactsApiTestCase(TestCase):
     def setUp(self):
-        dg = DataGenerator()
-        user = dg.generate_user()
+        user = DataGenerator.generate_user()
 
         contacts = []
         for i in range(3):
-            contacts.append(dg.generate_contact)
+            contacts.append(DataGenerator.generate_contact)
 
         self.client = Client()
         self.client.login(username=user['username'], password=user['password'])
@@ -20,5 +19,3 @@ class ContactsApiTestCase(TestCase):
         for p in response.json():
             self.assertSetEqual(set(p.keys()), {'name', 'phone_number', 'person_type'})
         # also need to assert that the list returned matches the contacts created
-
-

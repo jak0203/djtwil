@@ -1,10 +1,13 @@
+import os
+
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from .serializers import UserSerializer, GroupSerializer
 from django.views.generic import View
 from django.http import HttpResponse
 from django.conf import settings
-import os
+
+from rest_framework import viewsets
+
+from .serializers import UserSerializer, GroupSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):

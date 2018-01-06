@@ -1,5 +1,6 @@
-from .models import Person
 from rest_framework import serializers
+
+from .models import Person
 
 
 class PersonSerializer(serializers.HyperlinkedModelSerializer):

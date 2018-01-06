@@ -20,7 +20,7 @@ class CallButton extends Component {
     return (
       <button className={'btn btn-circle btn-success ' + (this.props.onPhone ? 'btn-danger': 'btn-success')}
           onClick={this.props.handleOnClick} disabled={this.props.disabled}>
-        <i className={'fa fa-fw fa-phone '+ (this.props.onPhone ? 'fa-close': 'fa-phone')}></i>
+        <i className={'fa fa-fw fa-phone '+ (this.props.onPhone ? 'fa-close': 'fa-phone')} />
       </button>
     );
   }
@@ -30,7 +30,7 @@ class MuteButton extends Component {
   render() {
     return (
       <button className="btn btn-circle btn-default" onClick={this.props.handleOnClick}>
-        <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')}></i>
+        <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')} />
       </button>
     );
   }
@@ -38,10 +38,11 @@ class MuteButton extends Component {
 
 class LogBox extends Component {
   render() {
+    let {smallText} = this.props;
     return (
       <div>
         <div className="log">{this.props.text}</div>
-        <p>{this.props.smallText}</p>
+        <p>{smallText}</p>
       </div>
     );
   }
@@ -56,6 +57,7 @@ class DTMFTone extends Component {
 // render contact list
 class ContactList extends Component {
   render() {
+    let {contactList} = this.props;
     return (
       <table className="table table table-bordered table-hover table-striped">
         <thead>
@@ -65,11 +67,11 @@ class ContactList extends Component {
           </tr>
         </thead>
         <tbody>
-          {this.props.contactList.map((element) => {
+          {contactList.map(({phone_number, name = "Unknown"}) => {
             return(
-              <tr key={element.name} onClick={() => this.props.onNumberSelect(element.phone_number)}>
-                <td>{element.name}</td>
-                <td>{element.phone_number}</td>
+              <tr key={name} onClick={() => contactList.onNumberSelect(phone_number)}>
+                <td>{name}</td>
+                <td>{phone_number}</td>
               </tr>
             )
           })}
@@ -91,7 +93,7 @@ class App extends Component {
     muted: false,
     scriptError: false,
     contacts: [],
-  }
+  };
 
   // Handle number input
   handleChangeNumber = (e) => {
@@ -102,25 +104,25 @@ class App extends Component {
   };
 
   // Check if the phone number is valid
-  isValidNumber = (number) => /^([0-9]|#|\*)+$/.test(number.replace(/[-()\s]/g,''))
+  isValidNumber = (number) => /^([0-9]|#|\*)+$/.test(number.replace(/[-()\s]/g,''));
 
   onNumberSelect = (number) => {
     this.setState({
       currentNumber: number,
       isValidNumber: this.isValidNumber(number),
     });
-  }
+  };
 
   // Handle muting
   handleToggleMute = () => {
-    var muted = !this.state.muted;
+    let muted = !this.state.muted;
     this.setState({muted: muted});
     window.Twilio.Device.activeConnection().mute(muted);
   };
 
   // Make an outbound call with the current number,
   // or hang up the current call
-  handleToggleCall = (ev) => {
+  handleToggleCall = () => {
     if (!this.state.onPhone) {
       this.setState({
         muted: false,
@@ -128,7 +130,7 @@ class App extends Component {
       });
       console.log('twilio device', window.Twilio);
       // make outbound call with current number
-      var n = '+' + this.state.countryCode + this.state.currentNumber.replace(/\D/g, '');
+      let n = '+' + this.state.countryCode + this.state.currentNumber.replace(/\D/g, '');
       window.Twilio.Device.connect({ To: n });
       this.setState({log: 'Calling ' + n})
     } else {
@@ -159,7 +161,7 @@ class App extends Component {
       console.log(err);
       this.setState({log: 'Could not fetch token, see console.log'});
     });
-  }
+  };
 
   getContactList = () => {
     axios.get('/api/contacts/')
@@ -168,18 +170,18 @@ class App extends Component {
       this.setState({contacts: res.data})
     })
 
-  }
+  };
 
   handleScriptError() {
     this.setState({ scriptError: true })
   };
 
   handleScriptLoad = () => {
-    this.setState({ scriptLoaded: true })
+    this.setState({ scriptLoaded: true });
     console.log('Twilio script loaded!', window.Twilio);
     this.getCapabilityToken();
     this.getContactList();
-  }
+  };
 
   render() {
     if (!this.state.scriptLoaded) {
@@ -197,7 +199,7 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to the Twilio Dialer</h1>
         </header>
-        <p></p>
+        <p/>
         <div id="dialer">
           <div id="dial-form" className="input-group input-group-sm">
             <NumberInputText

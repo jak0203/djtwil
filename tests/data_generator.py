@@ -6,39 +6,40 @@ from django.conf import settings
 import string
 
 
-
-
 class DataGenerator:
-    def __init__(self):
-        self.fake = Faker()
+    fake = Faker()
 
-    def generate_user(self):
+    @classmethod
+    def generate_user(cls):
         user = {
-            'username': self.fake.simple_profile()['username'],
-            'email': self.fake.safe_email(),
+            'username': cls.fake.simple_profile()['username'],
+            'email': cls.fake.safe_email(),
             'password': 'foo',
         }
         User.objects.create_user(**user)
         return user
 
-    def generate_contact(self):
+    @classmethod
+    def generate_contact(cls):
         contact = {
-            'name': self.fake.name(),
-            'phone_number': self.generate_phonenumber(),
+            'name': cls.fake.name(),
+            'phone_number': cls.generate_phonenumber(),
             'person_type': 'ECU'[randint(0, 2)]
         }
         Person.objects.create(**contact)
         return contact
 
-    def generate_phonenumber(self):
+    @classmethod
+    def generate_phonenumber(cls):
         return f'+1{str(randint(100000000, 999999999))}'
 
-    def generate_twilio_voice_request(self, caller, to=None):
+    @classmethod
+    def generate_twilio_voice_request(cls, caller, to=None):
         tvr = {
             'AccountSid': settings.TWILIO_ACCOUNT_SID,
             'ApiVersion': '2010-04-01',
             'ApplicationSid': settings.TWILIO_APP_SID,
-            'CallSid': f'CA{self.generate_callsid()}',
+            'CallSid': f'CA{cls.generate_callsid()}',
             'CallStatus': 'ringing',
             'Caller': caller,
             'Direction': 'inbound',
@@ -48,6 +49,6 @@ class DataGenerator:
             tvr['To'] = to
         return tvr
 
-    def generate_callsid(self):
+    @classmethod
+    def generate_callsid(cls):
         return ''.join(choice(string.ascii_lowercase + string.digits) for _ in range(32))
-

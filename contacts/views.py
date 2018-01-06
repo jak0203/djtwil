@@ -1,17 +1,17 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.views import generic
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+
 from .models import Person
 from .serializers import PersonSerializer
 
 
-class listView(generic.ListView):
+class ContactListView(generic.ListView):
     """This is a temporary view that is used to generate a page that has a list of contacts."""
     template_name = 'contacts/index.html'
     context_object_name = 'contact_list'
@@ -19,7 +19,7 @@ class listView(generic.ListView):
 
     @method_decorator(login_required(login_url='/admin/login/'))
     def dispatch(self, *args, **kwargs):
-        return super(listView, self).dispatch(*args, **kwargs)
+        return super(ContactListView, self).dispatch(*args, **kwargs)
 
 
 class PersonViewSet(viewsets.ModelViewSet):
@@ -39,4 +39,3 @@ def contacts(request):
     """
     # todo add the option for query parameters
     return HttpResponse(Person.objects.all())
-

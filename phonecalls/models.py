@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class PhoneNumber(models.Model):
@@ -16,3 +16,5 @@ class UserApp(models.Model):
     user = models.ForeignKey(User)
     app = models.CharField(max_length=60)
     is_online = models.BooleanField(default=False)
+
+# class PhoneCallHistory(models.Model):

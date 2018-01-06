@@ -1,16 +1,12 @@
-from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.test.utils import override_settings
 from urllib import parse
-from django.conf import settings
-from faker import Faker
 from tests.data_generator import DataGenerator
 
 
 class LoggedInViewsTestCase(TestCase):
     def setUp(self):
-        self.dg = DataGenerator()
-        user = self.dg.generate_user()
+        user = DataGenerator.generate_user()
         self.client = Client()
         self.client.login(username=user['username'], password=user['password'])
 
@@ -21,7 +17,7 @@ class LoggedInViewsTestCase(TestCase):
 
     @override_settings(DEBUG=True)
     def test_voice_without_to(self):
-        tvr = self.dg.generate_twilio_voice_request(**{
+        tvr = DataGenerator.generate_twilio_voice_request(**{
             'caller': 'client:j_react',
         })
         voice_response = ('<?xml version="1.0" encoding="UTF-8"?>'
@@ -35,9 +31,9 @@ class LoggedInViewsTestCase(TestCase):
 
     @override_settings(DEBUG=True)
     def test_voice(self):
-        tvr = self.dg.generate_twilio_voice_request(**{
+        tvr = DataGenerator.generate_twilio_voice_request(**{
             'caller': 'client:j_react',
-            'to': self.dg.generate_phonenumber()
+            'to': DataGenerator.generate_phonenumber()
         })
 
         voice_response = ('<?xml version="1.0" encoding="UTF-8"?>'
@@ -53,7 +49,7 @@ class LoggedInViewsTestCase(TestCase):
 
     @override_settings(DEBUG=True)
     def test_voice_client(self):
-        tvr = self.dg.generate_twilio_voice_request(**{
+        tvr = DataGenerator.generate_twilio_voice_request(**{
             'caller': 'client:j_react',
             'to': 'j_react'
         })
