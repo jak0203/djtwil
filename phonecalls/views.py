@@ -75,8 +75,8 @@ def capability_token(request):
     auth_token = settings.TWILIO_AUTH_TOKEN
     app_sid = settings.TWILIO_VOICE_APP_SID
     client = request.GET.get('client', 'unknown')
-    user_app, created = UserApp.objects.update_or_create(user=request.user, app=client, is_online=True)
-    identity = '_'.join([str(request.user), user_app.app])
+    identity = '_'.join([str(request.user), client])
+    user_app, created = UserApp.objects.update_or_create(user=request.user, app=identity, is_online=True)
 
     # Create a Capability Token
     capability = ClientCapabilityToken(account_sid, auth_token)

@@ -54,6 +54,19 @@ class DTMFTone extends Component {
   }
 }
 
+class IncomingCallAlert extends Component {
+  render() {
+    return (
+      <div>
+          <p>Incoming Call</p>
+          <button className="btn btn-circle btn-primary" onClick={this.props.accept}>Accept</button>
+          <button className="btn btn-circle btn-danger" onClick={this.props.reject}>Reject</button>
+
+      </div>
+    );
+  }
+}
+
 // render contact list
 class ContactList extends Component {
   render() {
@@ -93,6 +106,7 @@ class App extends Component {
     muted: false,
     scriptError: false,
     contacts: [],
+    incomingCallRinging: false,
   };
 
   // Handle number input
@@ -139,6 +153,33 @@ class App extends Component {
     }
   };
 
+  incomingCallEvent = (conn) => {
+    console.log('Incoming call from ', conn.parameters.From);
+    //show a pop up with incomingCallAlert
+    this.setState({
+      incomingCallRinging: true,
+      incomingCallAccept: () => {
+        conn.accept();
+        this.setState({incomingCallRinging: false});
+      },
+      incomingCallReject: () => {
+        conn.reject();
+        this.setState({incomingCallRinging: false});
+      }
+    })
+  };
+
+  setupIncomingCall = () => {
+    window.Twilio.Device.incoming(this.incomingCallEvent)
+    window.Twilio.Device.cancel(() => {
+      this.setState({
+        incomingCallRinging: false,
+        incomingCallAccept: null,
+        incomingCallReject: null,
+      });
+    });
+  };
+
   getCapabilityToken = () => {
     axios.get('/phonecalls/capabilityToken?client=reactweb')
     .then(res => {
@@ -155,6 +196,7 @@ class App extends Component {
       });
       window.Twilio.Device.ready( () => {
         this.log = 'Connected';
+        this.setupIncomingCall();
       });
     })
     .catch((err) => {
@@ -227,7 +269,15 @@ class App extends Component {
             onNumberSelect={this.onNumberSelect}
           />
         </div>
-
+        <div>
+          {this.state.incomingCallRinging ?
+            <IncomingCallAlert
+              accept={this.state.incomingCallAccept}
+              reject={this.state.incomingCallReject}
+            /> :
+            null
+          }
+        </div>
       </div>
     );
   }
