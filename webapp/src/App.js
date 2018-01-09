@@ -4,37 +4,6 @@ import logo from './logo.svg';
 import './App.css';
 import Script from 'react-load-script'
 
-class NumberInputText extends Component {
-  render() {
-    return (
-      <div className="input-group input-group-sm">
-      <input type="tel" className="form-control" placeholder="555-666-7777"
-        value={this.props.currentNumber} onChange={this.props.handleOnChange}/>
-      </div>
-    );
-  }
-}
-
-class CallButton extends Component {
-  render() {
-    return (
-      <button className={'btn btn-circle btn-success ' + (this.props.onPhone ? 'btn-danger': 'btn-success')}
-          onClick={this.props.handleOnClick} disabled={this.props.disabled}>
-        <i className={'fa fa-fw fa-phone '+ (this.props.onPhone ? 'fa-close': 'fa-phone')} />
-      </button>
-    );
-  }
-}
-
-class MuteButton extends Component {
-  render() {
-    return (
-      <button className="btn btn-circle btn-default" onClick={this.props.handleOnClick}>
-        <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')} />
-      </button>
-    );
-  }
-}
 
 class LogBox extends Component {
   render() {
@@ -54,14 +23,73 @@ class DTMFTone extends Component {
   }
 }
 
+class Dialer extends Component {
+  render () {
+    return (
+      <div id="dialer">
+        <div id="dial-form" className="input-group input-group-sm">
+          <div className="input-group input-group-sm">
+          <input type="tel" className="form-control" placeholder="555-666-7777"
+            value={this.props.currentNumber} onChange={this.props.handleOnChange}/>
+          </div>
+        </div>
+        <div id="dial-controls">
+          <button className={'btn btn-circle btn-success'}
+            onClick={this.props.handleOnClick} disabled={this.props.disabled}>
+          <i className={'fa fa-fw fa-phone'} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+}
+
+class PhoneControls extends Component {
+  render() {
+    return (
+      <div className={'controls'}>
+        <div  id="phone-controls">
+          <button className={'btn btn-circle btn-danger '}
+                  onClick={this.props.handleOnClick} disabled={this.props.disabled}>
+            <i className={'fa fa-fw fa-phone fa-close fa-rotate-135'} />
+          </button>
+        </div>
+        <div  id="phone-controls">
+          <button className="btn btn-circle btn-default"
+                  onClick={this.props.handleToggleMute}>
+            <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+}
+
 class IncomingCallAlert extends Component {
   render() {
     return (
-      <div>
-          <p>Incoming Call</p>
-          <button className="btn btn-circle btn-primary" onClick={this.props.accept}>Accept</button>
-          <button className="btn btn-circle btn-danger" onClick={this.props.reject}>Reject</button>
-
+      <div id="incoming-alert">
+          <h3>Incoming call from {this.props.caller}</h3>
+          <div className="controls">
+            <div id="phone-controls" >
+              <button className="btn btn-circle btn-success"
+                      onClick={this.props.accept}>
+                <i className={'fa fa-fw fa-phone'} />
+              </button>
+            </div>
+            <div id="phone-controls">
+              <button className="btn btn-circle btn-warning"
+                      onClick={this.props.ignore}>
+                <i className={'fa fa-fw fa-phone fa-rotate-135'} />
+              </button>
+            </div>
+            <div id="phone-controls">
+              <button className="btn btn-circle btn-danger"
+                      onClick={this.props.reject}>
+                <i className={'fa fa-fw fa-phone fa-rotate-135'} />
+              </button>
+            </div>
+          </div>
       </div>
     );
   }
@@ -72,6 +100,8 @@ class ContactList extends Component {
   render() {
     let {contactList} = this.props;
     return (
+      <div id="contacts">
+      <h4>Contacts</h4>
       <table className="table table table-bordered table-hover table-striped">
         <thead>
           <tr>
@@ -82,7 +112,7 @@ class ContactList extends Component {
         <tbody>
           {contactList.map(({phone_number, name = "Unknown"}) => {
             return(
-              <tr key={name} onClick={() => contactList.onNumberSelect(phone_number)}>
+              <tr key={name} onClick={() => this.props.onNumberSelect(phone_number)}>
                 <td>{name}</td>
                 <td>{phone_number}</td>
               </tr>
@@ -90,6 +120,7 @@ class ContactList extends Component {
           })}
         </tbody>
       </table>
+      </div>
     )
   }
 }
@@ -107,6 +138,7 @@ class App extends Component {
     scriptError: false,
     contacts: [],
     incomingCallRinging: false,
+    incomingCaller: 'Unknown'
   };
 
   // Handle number input
@@ -114,12 +146,13 @@ class App extends Component {
     this.setState({
       currentNumber: e.target.value,
       isValidNumber: this.isValidNumber(e.target.value)
-    });
+    })
   };
 
   // Check if the phone number is valid
   isValidNumber = (number) => /^([0-9]|#|\*)+$/.test(number.replace(/[-()\s]/g,''));
 
+  // When click on a row on the contact list, validate and set the number as current number
   onNumberSelect = (number) => {
     this.setState({
       currentNumber: number,
@@ -155,26 +188,40 @@ class App extends Component {
 
   incomingCallEvent = (conn) => {
     console.log('Incoming call from ', conn.parameters.From);
-    //show a pop up with incomingCallAlert
-    this.setState({
-      incomingCallRinging: true,
-      incomingCallAccept: () => {
-        conn.accept();
-        this.setState({incomingCallRinging: false});
-      },
-      incomingCallReject: () => {
-        conn.reject();
-        this.setState({incomingCallRinging: false});
-      }
-    })
+    if (!this.state.onPhone) {
+      //show a pop up with incomingCallAlert
+      this.setState({
+        incomingCallRinging: true,
+        incomingCaller: conn.parameters.From,
+        incomingCallAccept: () => {
+          conn.accept();
+          this.setState({
+            incomingCallRinging: false,
+            muted: false,
+            onPhone: true
+          });
+        },
+        incomingCallIgnore: () => {
+          conn.ignore();
+          this.setState({incomingCallRinging: false});
+        },
+        incomingCallReject: () => {
+          conn.reject();
+          this.setState({incomingCallRinging: false});
+        }
+      })
+    } else {
+      conn.ignore();
+    }
   };
 
   setupIncomingCall = () => {
-    window.Twilio.Device.incoming(this.incomingCallEvent)
+    window.Twilio.Device.incoming(this.incomingCallEvent);
     window.Twilio.Device.cancel(() => {
       this.setState({
         incomingCallRinging: false,
         incomingCallAccept: null,
+        incomingCallIgnore: null,
         incomingCallReject: null,
       });
     });
@@ -211,7 +258,6 @@ class App extends Component {
       console.log(res);
       this.setState({contacts: res.data})
     })
-
   };
 
   handleScriptError() {
@@ -242,41 +288,48 @@ class App extends Component {
           <h1 className="App-title">Welcome to the Twilio Dialer</h1>
         </header>
         <p/>
-        <div id="dialer">
-          <div id="dial-form" className="input-group input-group-sm">
-            <NumberInputText
-              currentNumber={this.state.currentNumber}
-              handleOnChange={this.handleChangeNumber}
-            />
+        <div className="App-body">
+
+          { (this.state.onPhone === false && this.state.incomingCallRinging === false)
+            ? <Dialer
+                currentNumber={this.state.currentNumber}
+                handleOnChange={this.handleChangeNumber}
+                handleOnClick={this.handleToggleCall}
+                disabled={!this.state.isValidNumber}
+                onPhone={this.state.onPhone}
+              />
+            : null
+          }
+
+          { this.state.onPhone
+            ? <PhoneControls
+                handleOnClick={this.handleToggleCall}
+                handleToggleMute={this.handleToggleMute}
+                muted={this.state.muted}
+              />
+            : null
+          }
+
+          { this.state.incomingCallRinging
+            ? <IncomingCallAlert
+                accept={this.state.incomingCallAccept}
+                ignore={this.state.incomingCallIgnore}
+                reject={this.state.incomingCallReject}
+                caller={this.state.incomingCaller}
+              />
+            : null
+          }
+
+          <div id="log">
+            { this.state.onPhone ? <DTMFTone/> : null }
+            <LogBox text={this.state.log}/>
           </div>
-          <div className="controls">
-            <CallButton
-              handleOnClick={this.handleToggleCall}
-              disabled={!this.state.isValidNumber}
-              onPhone={this.state.onPhone}
-            />
-            { this.state.onPhone ?
-              <MuteButton handleOnClick={this.handleToggleMute} muted={this.state.muted} />
-              : null
-            }
-          </div>
-          { this.state.onPhone ? <DTMFTone/> : null }
-          <LogBox text={this.state.log}/>
-        </div>
-        <div className="Contacts">
+
           <ContactList
             contactList={this.state.contacts}
             onNumberSelect={this.onNumberSelect}
           />
-        </div>
-        <div>
-          {this.state.incomingCallRinging ?
-            <IncomingCallAlert
-              accept={this.state.incomingCallAccept}
-              reject={this.state.incomingCallReject}
-            /> :
-            null
-          }
+
         </div>
       </div>
     );
