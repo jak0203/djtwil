@@ -18,8 +18,10 @@
   font-size: 1.5em;
 }
 
-.App-intro {
-  font-size: large;
+.App-body {
+  font-family: Helvetica, sans-serif;
+  width: 280px;
+  margin: 20px auto;
 }
 
 @keyframes App-logo-spin {
@@ -27,18 +29,11 @@
   to { transform: rotate(360deg); }
 }
 
-
-
-
 textarea:hover,  input:hover, textarea:active, input:active, textarea:focus,
 button:focus, button:active, button:hover, label:focus, .btn:active,
 .btn.active {
     outline:0px !important;
     -webkit-appearance:none;
-}
-
-.dropdown-menu li a {
-  padding: 3px 10px;
 }
 
 .btn-circle {
@@ -49,6 +44,74 @@ button:focus, button:active, button:hover, label:focus, .btn:active,
   font-size: 20px;
   line-height: 2.00;
   border-radius: 30px;
+}
+
+#dialer {
+  height: 50px;
+  text-align: center;
+}
+
+#dial-form {
+  width: 180px;
+  float: left;
+  padding-top: 10px;
+
+}
+
+#dial-controls {
+  width: 100px;
+  float: right;
+}
+
+
+#log {
+  background-color: #ddd;
+  clear: both;
+  margin: 20px auto;
+  padding: 20px 10px;
+  text-align: center;
+  font-size: 12px;
+  color: #787878;
+}
+
+p {
+  font-size: 10px;
+  color: #787878;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+#contacts {
+  background-color: #ddd;
+  padding: 10px;
+  text-align: left;
+  font-color: #a5a5a5;
+}
+
+.table {
+  background-color: white;
+  padding: 5px;
+  font-size: 12px;
+  width: 260px;
+  margin: auto;
+  text-align: left;
+}
+
+.table tbody tr:hover td, .table tbody tr:hover th {
+  background-color: #fcd6d9;
+}
+
+#incoming-alert {
+  text-align: center;
+  width: 280px;
+}
+
+#phone-controls {
+  margin: auto;
+  width: 93px;
+  float: left;
+  padding: 10px;
+
 }
 
 .controls, .keys {
@@ -63,6 +126,33 @@ button:focus, button:active, button:hover, label:focus, .btn:active,
   display: block;
   margin-bottom: 20px;
 }
+
+#phone-controls{
+
+}
+
+.fa-rotate-135 {
+  -webkit-transform: rotate(135deg);
+  -moz-transform: rotate(135deg);
+  -ms-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  transform: rotate(135deg);
+}
+
+
+.App-intro {
+  font-size: large;
+}
+
+
+.dropdown-menu li a {
+  padding: 3px 10px;
+}
+
+
+
+
+
 
 .keys {
   padding-left: 20px;
@@ -86,39 +176,8 @@ button:focus, button:active, button:hover, label:focus, .btn:active,
   color: #787878;
 }
 
-.log {
-  background-color: #ddd;
-  clear: both;
-  padding: 20px 10px;
-  text-align: center;
-  font-size: 12px;
-  color: #787878;
-}
-
-p {
-  font-size: 10px;
-  color: #787878;
-  font-style: italic;
-  margin-top: 10px;
-}
-
-#dialer {
-  font-family: Helvetica, sans-serif;
-  margin: 20px auto;
-  padding: 10;
-  width: 270px;
-  text-align: center;
-}
 
 
-.table {
-  padding: 5px;
-  font-size: 12px;
-  width: 270px;
-  margin: 0 auto;
-  text-align: left;
-}
 
-.table tbody tr:hover td, .table tbody tr:hover th {
-  background-color: #fcd6d9;
-}
+
+

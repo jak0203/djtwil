@@ -75,8 +75,8 @@ def capability_token(request):
     auth_token = settings.TWILIO_AUTH_TOKEN
     app_sid = settings.TWILIO_VOICE_APP_SID
     client = request.GET.get('client', 'unknown')
-    user_app, created = UserApp.objects.update_or_create(user=request.user, app=client, is_online=True)
-    identity = '_'.join([str(request.user), user_app.app])
+    identity = '_'.join([str(request.user), client])
+    user_app, created = UserApp.objects.update_or_create(user=request.user, app=identity, is_online=True)
 
     # Create a Capability Token
     capability = ClientCapabilityToken(account_sid, auth_token)
@@ -88,7 +88,7 @@ def capability_token(request):
     return JsonResponse(data)
 
 
-@api_view(['POST'])
+@require_http_methods(['POST'])
 @csrf_exempt
 @validate_twilio_request
 def incoming(request):
@@ -99,18 +99,15 @@ def incoming(request):
     """
     # Create a new TwiML response
     resp = VoiceResponse()
+    dial = Dial(caller_id=settings.TWILIO_PHONE_NUMBER)
 
-    # <Say> a message to the caller
-    from_number = request.POST['From']
-    body = """
-    Thanks for calling!
+    # Temporary - get all clients and dial all of them
+    all_web_clients = UserApp.objects.all()
+    for web_client in all_web_clients:
+        dial.client(web_client.app)
 
-    Your phone number is {0}. I got your call because of Twilio's webhook.
-
-    Goodbye! """.format(' '.join(from_number))
-    resp.say(body)
-
-    # Return the TwiML
+    resp.append(dial)
+    logger.info('Incoming call received')
     return HttpResponse(resp)
 
 
