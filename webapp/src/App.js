@@ -9,8 +9,8 @@ class LogBox extends Component {
   render() {
     let {smallText} = this.props;
     return (
-      <div>
-        <div className="log">{this.props.text}</div>
+      <div className="row top-buffer" id="log">
+        <div className="col-xs-12">{this.props.text}</div>
         <p>{smallText}</p>
       </div>
     );
@@ -26,17 +26,20 @@ class DTMFTone extends Component {
 class Dialer extends Component {
   render () {
     return (
-      <div id="dialer">
-        <div id="dial-form" className="input-group input-group-sm">
-          <div className="input-group input-group-sm">
-          <input type="tel" className="form-control" placeholder="555-666-7777"
-            value={this.props.currentNumber} onChange={this.props.handleOnChange}/>
-          </div>
+      <div className="row" id="dialer">
+        <div  className="col-xs-8 top-buffer-medium">
+          <input type="tel"
+                 className="form-control"
+                 placeholder="555-666-7777"
+                 value={this.props.currentNumber}
+                 onChange={this.props.handleOnChange}
+          />
         </div>
-        <div id="dial-controls">
-          <button className={'btn btn-circle btn-success'}
-            onClick={this.props.handleOnClick} disabled={this.props.disabled}>
-          <i className={'fa fa-fw fa-phone'} />
+        <div className="col-xs-4">
+          <button className="btn btn-circle btn-success"
+                  onClick={this.props.handleOnClick}
+                  disabled={this.props.disabled}>
+            <i className="fa fa-fw fa-phone"/>
           </button>
         </div>
       </div>
@@ -47,18 +50,20 @@ class Dialer extends Component {
 class PhoneControls extends Component {
   render() {
     return (
-      <div className={'controls'}>
-        <div  id="phone-controls">
-          <button className={'btn btn-circle btn-danger '}
-                  onClick={this.props.handleOnClick} disabled={this.props.disabled}>
-            <i className={'fa fa-fw fa-phone fa-close fa-rotate-135'} />
+      <div className="row" id="phone-controls">
+        <div className="col-xs-6">
+          <button className="btn btn-circle btn-danger"
+                  onClick={this.props.handleOnClick}
+                  disabled={this.props.disabled}>
+            <i className="fa fa-fw fa-phone fa-close fa-rotate-135"/>
           </button>
+          <p id="button-label">End Call</p>
         </div>
-        <div  id="phone-controls">
-          <button className="btn btn-circle btn-default"
-                  onClick={this.props.handleToggleMute}>
+        <div className="col-xs-6">
+          <button className="btn btn-circle btn-default" onClick={this.props.handleToggleMute}>
             <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')} />
           </button>
+          <p id="button-label">Mute</p>
         </div>
       </div>
     );
@@ -68,28 +73,33 @@ class PhoneControls extends Component {
 class IncomingCallAlert extends Component {
   render() {
     return (
-      <div id="incoming-alert">
-          <h3>Incoming call from {this.props.caller}</h3>
-          <div className="controls">
-            <div id="phone-controls" >
-              <button className="btn btn-circle btn-success"
-                      onClick={this.props.accept}>
-                <i className={'fa fa-fw fa-phone'} />
-              </button>
-            </div>
-            <div id="phone-controls">
-              <button className="btn btn-circle btn-warning"
-                      onClick={this.props.ignore}>
-                <i className={'fa fa-fw fa-phone fa-rotate-135'} />
-              </button>
-            </div>
-            <div id="phone-controls">
-              <button className="btn btn-circle btn-danger"
-                      onClick={this.props.reject}>
-                <i className={'fa fa-fw fa-phone fa-rotate-135'} />
-              </button>
-            </div>
+      <div className="row" id="incoming-alert">
+        <div className="col-xs">
+          <h4>Incoming call from {this.props.caller}</h4>
+        </div>
+        <div className="col-xs top-buffer" id="incoming-buttons">
+          <div className="col-xs-4">
+            <button className="btn btn-circle btn-success"
+                    onClick={this.props.accept}>
+              <i className={'fa fa-fw fa-phone'} />
+            </button>
+            <p id="button-label">Accept</p>
           </div>
+          <div className="col-xs-4">
+            <button className="btn btn-circle btn-warning"
+                    onClick={this.props.ignore}>
+              <i className={'fa fa-fw fa-phone fa-rotate-135'} />
+            </button>
+            <p id="button-label">Ignore</p>
+          </div>
+          <div className="col-xs-4">
+            <button className="btn btn-circle btn-danger"
+                    onClick={this.props.reject}>
+              <i className={'fa fa-fw fa-phone fa-rotate-135'} />
+            </button>
+            <p id="button-label">Reject</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -100,26 +110,30 @@ class ContactList extends Component {
   render() {
     let {contactList} = this.props;
     return (
-      <div id="contacts">
-      <h4>Contacts</h4>
-      <table className="table table table-bordered table-hover table-striped">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {contactList.map(({phone_number, name = "Unknown"}) => {
-            return(
-              <tr key={name} onClick={() => this.props.onNumberSelect(phone_number)}>
-                <td>{name}</td>
-                <td>{phone_number}</td>
+      <div className="row top-buffer" id="contacts">
+        <div className="col-xs-12" id="contacts-header">
+          <h4>Contacts</h4>
+        </div>
+        <div className="col-xs-12 top-buffer-small">
+          <table className="table table table-bordered table-hover table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone Number</th>
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {contactList.map(({phone_number, name = "Unknown"}) => {
+                return(
+                  <tr key={name} onClick={() => this.props.onNumberSelect(phone_number)}>
+                    <td>{name}</td>
+                    <td>{phone_number}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }
@@ -128,17 +142,17 @@ class ContactList extends Component {
 
 class App extends Component {
   state = {
+    scriptLoaded: false,
+    scriptError: false,
+    phonecallToken: null,
+    countryCode: 1,
     currentNumber: '',
     isValidNumber: false,
     onPhone: false,
-    phonecallToken: null,
-    scriptLoaded: false,
-    countryCode: 1,
     muted: false,
-    scriptError: false,
-    contacts: [],
     incomingCallRinging: false,
-    incomingCaller: 'Unknown'
+    incomingCaller: 'Unknown',
+    contacts: [],
   };
 
   // Handle number input
@@ -288,7 +302,7 @@ class App extends Component {
           <h1 className="App-title">Welcome to the Twilio Dialer</h1>
         </header>
         <p/>
-        <div className="App-body">
+        <div className="container" id="App-body">
 
           { (this.state.onPhone === false && this.state.incomingCallRinging === false)
             ? <Dialer
@@ -320,10 +334,12 @@ class App extends Component {
             : null
           }
 
-          <div id="log">
-            { this.state.onPhone ? <DTMFTone/> : null }
-            <LogBox text={this.state.log}/>
-          </div>
+          { this.state.onPhone
+            ? <DTMFTone/>
+            : null
+          }
+
+          <LogBox text={this.state.log}/>
 
           <ContactList
             contactList={this.state.contacts}

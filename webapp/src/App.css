@@ -7,6 +7,11 @@
   height: 50px;
 }
 
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .App-header {
   background-color: #222;
   height: 125px;
@@ -18,117 +23,23 @@
   font-size: 1.5em;
 }
 
-.App-body {
+#App-body {
   font-family: Helvetica, sans-serif;
-  width: 280px;
-  margin: 20px auto;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-textarea:hover,  input:hover, textarea:active, input:active, textarea:focus,
-button:focus, button:active, button:hover, label:focus, .btn:active,
-.btn.active {
-    outline:0px !important;
-    -webkit-appearance:none;
+  width: 300px;
+  /*margin: 20px auto;*/
+  text-align: center;
 }
 
 .btn-circle {
-  width: 49px;
-  height: 49px;
-  text-align: center;
-  padding: 5px 0;
-  font-size: 20px;
-  line-height: 2.00;
-  border-radius: 30px;
-}
-
-#dialer {
+  width: 50px;
   height: 50px;
-  text-align: center;
+  padding: 3px 0;
+  font-size: 20px;
+  border-radius: 25px;
 }
 
-#dial-form {
-  width: 180px;
-  float: left;
-  padding-top: 10px;
-
-}
-
-#dial-controls {
-  width: 100px;
-  float: right;
-}
-
-
-#log {
-  background-color: #ddd;
-  clear: both;
-  margin: 20px auto;
-  padding: 20px 10px;
-  text-align: center;
-  font-size: 12px;
-  color: #787878;
-}
-
-p {
-  font-size: 10px;
-  color: #787878;
-  font-style: italic;
-  margin-top: 10px;
-}
-
-#contacts {
-  background-color: #ddd;
-  padding: 10px;
-  text-align: left;
-  font-color: #a5a5a5;
-}
-
-.table {
-  background-color: white;
-  padding: 5px;
-  font-size: 12px;
-  width: 260px;
-  margin: auto;
-  text-align: left;
-}
-
-.table tbody tr:hover td, .table tbody tr:hover th {
-  background-color: #fcd6d9;
-}
-
-#incoming-alert {
-  text-align: center;
-  width: 280px;
-}
-
-#phone-controls {
-  margin: auto;
-  width: 93px;
-  float: left;
-  padding: 10px;
-
-}
-
-.controls, .keys {
-  padding-top: 10px;
-}
-
-.controls {
-  float: left;
-}
-
-.controls .btn {
-  display: block;
-  margin-bottom: 20px;
-}
-
-#phone-controls{
-
+#button-label {
+  color: #696969;
 }
 
 .fa-rotate-135 {
@@ -139,45 +50,18 @@ p {
   transform: rotate(135deg);
 }
 
-
-.App-intro {
-  font-size: large;
+#log {
+  background-color: #ddd;
+  /*margin: 20px auto;*/
+  padding: 20px 10px;
+  font-size: 12px;
+  color: #696969;
 }
 
+.top-buffer { margin-top:20px; }
+.top-buffer-small { margin-top:5px; }
+.top-buffer-medium { margin-top:10px; }
 
-.dropdown-menu li a {
-  padding: 3px 10px;
+#contacts-header {
+  background-color: #ddd;
 }
-
-
-
-
-
-
-.keys {
-  padding-left: 20px;
-  float: right;
-  text-align: center;
-  color: #fff;
-}
-
-.key-row {
-  margin-bottom: 20px;
-}
-
-.key-row .btn {
-  font-weight: 100;
-}
-
-.key-row .btn span {
-  display: block;
-  padding-top: 2px;
-  font-size: 10px;
-  color: #787878;
-}
-
-
-
-
-
-
