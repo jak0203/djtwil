@@ -115,7 +115,7 @@ class ContactList extends Component {
           <h4>Contacts</h4>
         </div>
         <div className="col-xs-12 top-buffer-small">
-          <table className="table table table-bordered table-hover table-striped">
+          <table className="table table table-bordered table-hover table-striped sortable">
             <thead>
               <tr>
                 <th>Name</th>
