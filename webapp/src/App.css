@@ -60,10 +60,12 @@
 .top-buffer-small { margin-top:5px; }
 .top-buffer-medium { margin-top:10px; }
 
-#contacts-header {
+#contacts {
   background-color: #ddd;
+  text-align: left;
 }
 
-.sortable {
+#contacts-table {
     cursor: pointer;
+    background-color: white;
 }

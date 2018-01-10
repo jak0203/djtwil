@@ -74,9 +74,9 @@ class IncomingCallAlert extends Component {
   render() {
     return (
       <div className="row" id="incoming-alert">
-        <div className="col-xs">
-          <h4>Incoming call from {this.props.caller}</h4>
-        </div>
+        {/*<div className="col-xs">*/}
+          {/*<h4>Incoming call from {this.props.caller}</h4>*/}
+        {/*</div>*/}
         <div className="col-xs top-buffer" id="incoming-buttons">
           <div className="col-xs-4">
             <button className="btn btn-circle btn-success"
@@ -115,7 +115,7 @@ class ContactList extends Component {
           <h4>Contacts</h4>
         </div>
         <div className="col-xs-12 top-buffer-small">
-          <table className="table table table-bordered table-hover table-striped sortable">
+          <table className="table table table-bordered table-hover table-striped" id="contacts-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -205,6 +205,7 @@ class App extends Component {
     if (!this.state.onPhone) {
       //show a pop up with incomingCallAlert
       this.setState({
+        log: 'Incoming call from ' + conn.parameters.From,
         incomingCallRinging: true,
         incomingCaller: conn.parameters.From,
         incomingCallAccept: () => {
@@ -212,16 +213,23 @@ class App extends Component {
           this.setState({
             incomingCallRinging: false,
             muted: false,
-            onPhone: true
+            onPhone: true,
+            log: 'Incoming call accepted',
           });
         },
         incomingCallIgnore: () => {
           conn.ignore();
-          this.setState({incomingCallRinging: false});
+          this.setState({
+            log: 'Incoming call ignored',
+            incomingCallRinging: false,
+          });
         },
         incomingCallReject: () => {
           conn.reject();
-          this.setState({incomingCallRinging: false});
+          this.setState({
+            log: 'Incoming call rejected',
+            incomingCallRinging: false,
+          });
         }
       })
     } else {
@@ -234,6 +242,7 @@ class App extends Component {
     window.Twilio.Device.cancel(() => {
       this.setState({
         incomingCallRinging: false,
+        log: 'Incoming call canceled',
         incomingCallAccept: null,
         incomingCallIgnore: null,
         incomingCallReject: null,
@@ -252,7 +261,7 @@ class App extends Component {
       window.Twilio.Device.disconnect( () => {
         this.setState({
           onPhone: false,
-          log: 'Call ended.'
+          log: 'Call ended'
         });
       });
       window.Twilio.Device.ready( () => {
