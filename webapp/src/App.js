@@ -1,8 +1,22 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
 import Script from 'react-load-script'
+import Paper from 'material-ui/Paper'
+import TextField from 'material-ui/TextField';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+// import FontIcon from 'material-ui/FontIcon';
+
+
+const PaperStyle = {
+  // height: 00,
+  width: 400,
+  margin: 20,
+  padding: 20,
+  textAlign: 'center',
+  display: 'inline-block',
+};
 
 
 class LogBox extends Component {
@@ -26,21 +40,22 @@ class DTMFTone extends Component {
 class Dialer extends Component {
   render () {
     return (
-      <div className="row" id="dialer">
-        <div  className="col-xs-8 top-buffer-medium">
-          <input type="tel"
-                 className="form-control"
-                 placeholder="555-666-7777"
-                 value={this.props.currentNumber}
-                 onChange={this.props.handleOnChange}
+      <div className="row">
+        <div className="col-md-6">
+          <TextField
+            hintText={'555-666-7777'}
+            value={this.props.currentNumber}
+            onChange={this.props.handleOnChange}
           />
         </div>
-        <div className="col-xs-4">
-          <button className="btn btn-circle btn-success"
-                  onClick={this.props.handleOnClick}
-                  disabled={this.props.disabled}>
-            <i className="fa fa-fw fa-phone"/>
-          </button>
+        <div className="col-md-2" />
+        <div className="col-md-4">
+          <FloatingActionButton
+            backgroundColor={'green'}
+            onClick={this.props.handleOnClick}
+            disabled={this.props.disabled}
+            iconClassName='fa fa-phone'
+          />
         </div>
       </div>
     );
@@ -52,17 +67,20 @@ class PhoneControls extends Component {
     return (
       <div className="row" id="phone-controls">
         <div className="col-xs-6">
-          <button className="btn btn-circle btn-danger"
-                  onClick={this.props.handleOnClick}
-                  disabled={this.props.disabled}>
-            <i className="fa fa-fw fa-phone fa-close fa-rotate-135"/>
-          </button>
+          <FloatingActionButton
+            backgroundColor={'red'}
+            onClick={this.props.handleOnClick}
+            disabled={this.props.disabled}
+            iconClassName="fa fa-phone fa-rotate-135"
+          />
           <p id="button-label">End Call</p>
         </div>
         <div className="col-xs-6">
-          <button className="btn btn-circle btn-default" onClick={this.props.handleToggleMute}>
-            <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')} />
-          </button>
+          <FloatingActionButton
+            onClick={this.props.handleToggleMute}
+            iconClassName={'fa fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')}
+
+          />
           <p id="button-label">Mute</p>
         </div>
       </div>
@@ -75,28 +93,30 @@ class IncomingCallAlert extends Component {
     return (
       <div className="row" id="incoming-alert">
         {/*<div className="col-xs">*/}
-          {/*<h4>Incoming call from {this.props.caller}</h4>*/}
+        {/*<h4>Incoming call from {this.props.caller}</h4>*/}
         {/*</div>*/}
         <div className="col-xs top-buffer" id="incoming-buttons">
           <div className="col-xs-4">
-            <button className="btn btn-circle btn-success"
-                    onClick={this.props.accept}>
-              <i className={'fa fa-fw fa-phone'} />
-            </button>
+            <FloatingActionButton
+              backgroundColor={'green'}
+              onClick={this.props.accept}
+              iconClassName={'fa fa-phone'}
+            />
             <p id="button-label">Accept</p>
           </div>
           <div className="col-xs-4">
-            <button className="btn btn-circle btn-warning"
-                    onClick={this.props.ignore}>
-              <i className={'fa fa-fw fa-phone fa-rotate-135'} />
-            </button>
+            <FloatingActionButton
+              onClick={this.props.ignore}
+              iconClassName={'fa fa-phone fa-rotate-135'}
+            />
             <p id="button-label">Ignore</p>
           </div>
           <div className="col-xs-4">
-            <button className="btn btn-circle btn-danger"
-                    onClick={this.props.reject}>
-              <i className={'fa fa-fw fa-phone fa-rotate-135'} />
-            </button>
+            <FloatingActionButton
+              backgroundColor={'red'}
+              onClick={this.props.reject}
+              iconClassName={'fa fa-phone fa-rotate-135'}
+            />
             <p id="button-label">Reject</p>
           </div>
         </div>
@@ -105,39 +125,7 @@ class IncomingCallAlert extends Component {
   }
 }
 
-// render contact list
-class ContactList extends Component {
-  render() {
-    let {contactList} = this.props;
-    return (
-      <div className="row top-buffer" id="contacts">
-        <div className="col-xs-12" id="contacts-header">
-          <h4>Contacts</h4>
-        </div>
-        <div className="col-xs-12 top-buffer-small">
-          <table className="table table table-bordered table-hover table-striped" id="contacts-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone Number</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contactList.map(({phone_number, name = "Unknown"}) => {
-                return(
-                  <tr key={name} onClick={() => this.props.onNumberSelect(phone_number)}>
-                    <td>{name}</td>
-                    <td>{phone_number}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    )
-  }
-}
+
 
 
 class App extends Component {
@@ -152,7 +140,6 @@ class App extends Component {
     muted: false,
     incomingCallRinging: false,
     incomingCaller: 'Unknown',
-    contacts: [],
   };
 
   // Handle number input
@@ -252,35 +239,27 @@ class App extends Component {
 
   getCapabilityToken = () => {
     axios.get('/phonecalls/capabilityToken?client=reactweb')
-    .then(res => {
-      this.setState({phonecallToken: res && res.data && res.data.token});
-      window.Twilio.Device.setup(res.data.token);
-      console.log('Twilio device setup', window.Twilio);
-      this.setState({log: 'Ready to call'});
-      // Configure event handlers for Twilio Device
-      window.Twilio.Device.disconnect( () => {
-        this.setState({
-          onPhone: false,
-          log: 'Call ended'
+      .then(res => {
+        this.setState({phonecallToken: res && res.data && res.data.token});
+        window.Twilio.Device.setup(res.data.token);
+        console.log('Twilio device setup', window.Twilio);
+        this.setState({log: 'Ready to call'});
+        // Configure event handlers for Twilio Device
+        window.Twilio.Device.disconnect( () => {
+          this.setState({
+            onPhone: false,
+            log: 'Call ended'
+          });
         });
+        window.Twilio.Device.ready( () => {
+          this.log = 'Connected';
+          this.setupIncomingCall();
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        this.setState({log: 'Could not fetch token, see console.log'});
       });
-      window.Twilio.Device.ready( () => {
-        this.log = 'Connected';
-        this.setupIncomingCall();
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      this.setState({log: 'Could not fetch token, see console.log'});
-    });
-  };
-
-  getContactList = () => {
-    axios.get('/api/contacts/')
-    .then(res => {
-      console.log(res);
-      this.setState({contacts: res.data})
-    })
   };
 
   handleScriptError() {
@@ -291,7 +270,7 @@ class App extends Component {
     this.setState({ scriptLoaded: true });
     console.log('Twilio script loaded!', window.Twilio);
     this.getCapabilityToken();
-    this.getContactList();
+    // this.getContactList();
   };
 
   render() {
@@ -306,56 +285,49 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to the Twilio Dialer</h1>
-        </header>
-        <p/>
-        <div className="container" id="App-body">
+        <Paper style={PaperStyle} zDepth={4}>
+          <div className="container" id="App-body">
 
-          { (this.state.onPhone === false && this.state.incomingCallRinging === false)
-            ? <Dialer
+            { (this.state.onPhone === false && this.state.incomingCallRinging === false)
+              ? <Dialer
                 currentNumber={this.state.currentNumber}
                 handleOnChange={this.handleChangeNumber}
                 handleOnClick={this.handleToggleCall}
                 disabled={!this.state.isValidNumber}
                 onPhone={this.state.onPhone}
               />
-            : null
-          }
+              : null
+            }
 
-          { this.state.onPhone
-            ? <PhoneControls
+            { this.state.onPhone
+              ? <PhoneControls
                 handleOnClick={this.handleToggleCall}
                 handleToggleMute={this.handleToggleMute}
                 muted={this.state.muted}
               />
-            : null
-          }
+              : null
+            }
 
-          { this.state.incomingCallRinging
-            ? <IncomingCallAlert
+            { this.state.incomingCallRinging
+              ? <IncomingCallAlert
                 accept={this.state.incomingCallAccept}
                 ignore={this.state.incomingCallIgnore}
                 reject={this.state.incomingCallReject}
                 caller={this.state.incomingCaller}
               />
-            : null
-          }
+              : null
+            }
 
-          { this.state.onPhone
-            ? <DTMFTone/>
-            : null
-          }
+            { this.state.onPhone
+              ? <DTMFTone/>
+              : null
+            }
 
-          <LogBox text={this.state.log}/>
+            <LogBox text={this.state.log}/>
 
-          <ContactList
-            contactList={this.state.contacts}
-            onNumberSelect={this.onNumberSelect}
-          />
 
-        </div>
+          </div>
+        </Paper>
       </div>
     );
   }
