@@ -7,7 +7,12 @@ import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 // import FontIcon from 'material-ui/FontIcon';
+import { connect } from 'react-redux';
+import {toggleMute, fetchCapabilityToken} from "./actions/phone";
 
+// import {connect} from 'react-redux';
+import { bindActionCreators } from 'redux';
+// import { toggleMute } from './actions/actions';
 
 const PaperStyle = {
   // height: 00,
@@ -238,10 +243,13 @@ class App extends Component {
   };
 
   getCapabilityToken = () => {
-    axios.get('/phonecalls/capabilityToken?client=reactweb')
+    // this.props.fetchCapabilityToken('/phonecalls/capabilityToken?client=reactweb');
+    // .then(console.log(this.props.capabilityToken))
+      axios.get('/phonecalls/capabilityToken?client=reactweb')
       .then(res => {
         this.setState({phonecallToken: res && res.data && res.data.token});
         window.Twilio.Device.setup(res.data.token);
+        // .then(() => {window.Twilio.Device.setup(this.props.capabilityToken.token);
         console.log('Twilio device setup', window.Twilio);
         this.setState({log: 'Ready to call'});
         // Configure event handlers for Twilio Device
@@ -261,6 +269,22 @@ class App extends Component {
         this.setState({log: 'Could not fetch token, see console.log'});
       });
   };
+  setupTwilioDevice = () => {
+    window.Twilio.Device.setup(this.props.capabilityToken.token);
+    console.log('Twilio device setup', window.Twilio);
+    this.setState({log: 'Ready to call'});
+    // Configure event handlers for Twilio Device
+    window.Twilio.Device.disconnect( () => {
+      this.setState({
+        onPhone: false,
+        log: 'Call ended'
+      });
+    });
+    window.Twilio.Device.ready( () => {
+      this.log = 'Connected';
+      this.setupIncomingCall();
+    });
+  };
 
   handleScriptError() {
     this.setState({ scriptError: true })
@@ -270,6 +294,9 @@ class App extends Component {
     this.setState({ scriptLoaded: true });
     console.log('Twilio script loaded!', window.Twilio);
     this.getCapabilityToken();
+    // this.props.fetchCapabilityToken('/phonecalls/capabilityToken?client=reactweb')
+    //   .then(this.setupTwilioDevice());
+
     // this.getContactList();
   };
 
@@ -302,8 +329,10 @@ class App extends Component {
             { this.state.onPhone
               ? <PhoneControls
                 handleOnClick={this.handleToggleCall}
-                handleToggleMute={this.handleToggleMute}
-                muted={this.state.muted}
+                // handleToggleMute={this.handleToggleMute}
+                // muted={this.state.muted}
+                handleToggleMute={this.props.toggleMute}
+                muted={this.props.muted}
               />
               : null
             }
@@ -333,4 +362,22 @@ class App extends Component {
   }
 }
 
-export default App;
+// export default App;
+function mapStateToProps(state) {
+  return {
+    muted: state.muted,
+    capabilityToken: state.capabilityToken,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toggleMute: bindActionCreators(toggleMute, dispatch),
+    fetchCapabilityToken: bindActionCreators(fetchCapabilityToken, dispatch)
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
