@@ -1,56 +1,68 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+
+import { styles } from '../Style';
+
+import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
-import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
-import FontIcon from 'material-ui/FontIcon';
-import FlatButton from 'material-ui/FlatButton';
-import Link from 'react-router-dom/Link';
+import IconButton from 'material-ui/IconButton';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+
+import MenuIcon from 'material-ui-icons/Menu';
+
+import { openDrawer } from '../actions/sidebar';
 
 class Header extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false
-    };
-  }
-  handleToggle = () => this.setState({open: !this.state.open});
-  handleClose = () => this.setState({open: false});
 
-  render() {
-    let {menuList} = this.props;
-    let {title} = this.props;
-    let {user} = this.props;
+  render () {
+    let { title } = this.props;
+    const { classes } = this.props;
     return (
       <div>
         <AppBar
-          onLeftIconButtonClick={this.handleToggle}
-          title={title}
-          iconElementRight={<FlatButton label={user} />}
-        />
-        <Drawer
-          open={this.state.open}
-          docked={false}
-          onRequestChange={(open) => this.setState({open})}
-         >
-          <AppBar onLeftIconButtonClick={this.handleToggle}/>
-          {menuList.map(({title, icon, route}) => {
-              return (
-                <MenuItem
-                  onClick={this.handleClose}
-                  key={title}
-                  leftIcon={<FontIcon className={icon}/>}
-                  containerElement={<Link to={route} />}
-                >
-                  {title}
-                </MenuItem>
-              )
-            }
-          )}
-        </Drawer>
+          className={classNames(classes.appBar, this.props.sidebar.open && classes.appBarShift)}
+        >
+          <Toolbar disableGutters={!this.props.sidebar.open}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={this.props.openDrawer}
+              className={classNames(classes.menuButton, this.props.sidebar.open && classes.hide)}
+            >
+              <MenuIcon/>
+            </IconButton>
+            <Typography variant="title" color="inherit" noWrap>
+              { title }
+            </Typography>
+          </Toolbar>
+        </AppBar>
       </div>
-
     )
   }
 }
 
-export default Header;
+function mapStateToProps(state) {
+  return {
+    sidebar: state.sidebar
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    openDrawer: bindActionCreators(openDrawer, dispatch),
+  }
+}
+
+Header.propTypes = {
+  classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles, { withTheme: true })(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Header));

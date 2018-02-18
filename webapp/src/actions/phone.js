@@ -1,79 +1,133 @@
-import Script from 'react-load-script';
-import axios from 'axios';
-
-
 /*
-Action Types
+ Action Types
  */
 
-export const SCRIPT_IS_LOADING   = 'SCRIPT_IS_LOADING';
-export const SCRIPT_HAS_ERRORED  = 'SCRIPT_HAS_ERRORED';
-export const SCRIPT_LOAD_SUCCESS = 'SCRIPT_LOAD_SUCCESS';
-
-export const CAPABILITY_TOKEN_IS_LOADING = 'CAPABILITY_TOKEN_IS_LOADING';
-export const CAPABILITY_TOKEN_HAS_ERRORED = 'CAPABILITY_TOKEN_HAS_ERRORED';
-export const CAPABILITY_TOKEN_FETCH_SUCCESS = 'FETCH_CAPABILITY_TOKEN_SUCCESS';
+export const PLACE_OUTBOUND_CALL = 'PLACE_OUTBOUND_CALL';
+export const END_CALL = 'END_CALL';
 
 export const TOGGLE_MUTE = 'TOGGLE_MUTE';
+
+export const CHANGE_NUMBER = 'CHANGE_NUMBER';
+
+export const INCOMING_CALL_EVENT = 'INCOMING_CALL_EVENT';
+export const INCOMING_CALL_ACCEPT = 'INCOMING_CALL_ACCEPT';
+export const INCOMING_CALL_IGNORE = 'INCOMING_CALL_IGNORE';
+export const INCOMING_CALL_REJECT = 'INCOMING_CALL_REJECT';
+
+export const CALL_CANCELED_EVENT = 'CALL_CANCELED_EVENT';
+
+
 /*
 Action creators
  */
-// scriptIsLoading
-// scriptHasErrored
-// scriptLoadSuccess
-
-export function capabilityTokenIsLoading(bool) {
+export function validateNumber(number) {
+  const v = /^([0-9]|#|\*)+$/.test(number.replace(/[-()\s]/g,''));
+  console.log(v);
   return {
-    type: CAPABILITY_TOKEN_IS_LOADING,
-    isLoading: bool,
-  };
+      isValid: v
+    }
 }
 
-export function capabilityTokenHasErrored(bool) {
+export function changeNumber(event) {
+  const number = event.target.value;
   return {
-    type: CAPABILITY_TOKEN_HAS_ERRORED,
-    isLoading: bool,
-  };
-}
-
-export function capabilityTokenFetchSuccess(capabilityToken) {
-  return {
-    type: CAPABILITY_TOKEN_FETCH_SUCCESS,
-    capabilityToken,
+    type: CHANGE_NUMBER,
+    payload: {
+      number: number,
+      isValid: validateNumber(number).isValid,
+    }
   }
 }
 
-export function fetchCapabilityToken(url) {
-  return (dispatch) => {
-    dispatch(capabilityTokenIsLoading(true));
-    axios.get(url)
-      .then((response) => {
-        if (response.status !== 200) {
-          throw Error(response.statusText);
-        }
-        console.log(response);
-        dispatch(capabilityTokenIsLoading(false));
-        return response;
-      })
-      .then((response) => response.data)
-      .then((capabilityToken) => dispatch(capabilityTokenFetchSuccess(capabilityToken)))
-      // .then(() => dispatch(setupTwilioDevice()))
-      .catch(() => dispatch(capabilityTokenHasErrored(true)))
+export const placeOutboundCall = () => (dispatch, getState) => {
+  const { number } = getState().phone;
+  //TODO add handling for if I'm trying to make an outbound call but am already on phone?
+  //TODO add handling for calling a contact on another app
+  dispatch ({
+    type: PLACE_OUTBOUND_CALL,
+    payload: {
+      currentCall: number
+    },
+  });
+  window.Twilio.Device.connect({To: number});
+};
+
+export const endCall = () => (dispatch, getState) => {
+  window.Twilio.Device.disconnectAll();
+  dispatch({
+    type: END_CALL,
+    payload: {},
+  });
+};
+
+export const incomingCallEvent = (conn) => (dispatch, getState) => {
+  let { phone } = getState();
+  if (!phone.onPhone) {
+    dispatch({
+      type: INCOMING_CALL_EVENT,
+      payload: {
+        incomingCaller: conn.parameters.From,
+        connection: conn
+      }
+    })
+  } else {
+    dispatch ({
+      type: INCOMING_CALL_REJECT,
+      payload: {
+        incomingCaller: conn.parameters.From,
+      }
+    })
   }
-}
+};
 
-export function setupTwilioDevice() {
-  return (dispatch) => {
+export const incomingCallAccept = () => (dispatch, getState) => {
+  const { connection } = getState().phone;
+  connection.accept();
+  dispatch({
+    type: INCOMING_CALL_ACCEPT,
+    payload: {
+      currentCall: connection.parameters.From,
+    }
+  })
+};
 
-  }
-}
+export const incomingCallIgnore = () => (dispatch, getState) => {
+  const { connection } = getState().phone;
+  connection.ignore();
+  dispatch({
+    type: INCOMING_CALL_IGNORE,
+    payload: {}
+  })
+};
 
-export function toggleMute() {
-  //todo need to add the actual muting of twilio device but can't do that until the device is saved in state
+export const incomingCallReject = () => (dispatch, getState) => {
+  const { connection } = getState().phone;
+  connection.reject();
+  dispatch ({
+    type: INCOMING_CALL_REJECT,
+    payload: {}
+  })
+};
+
+export function callCanceledEvent(conn) {
   return {
+    type: CALL_CANCELED_EVENT,
+    payload: {
+      caller: conn.parameters.From,
+    }
+  }
+}
+
+/*
+Toggle the muted state of the current phonecall
+ */
+export const toggleMute = () => (dispatch, getState) => {
+  let muted = !getState().phone.muted;
+  window.Twilio.Device.activeConnection().mute(muted);
+  dispatch({
     type: TOGGLE_MUTE,
-    // muted: bool,
-  }
-}
-
-
+    payload: {
+      muted: muted,
+    }
+  })
+};

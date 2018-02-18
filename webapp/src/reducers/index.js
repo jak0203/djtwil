@@ -1,11 +1,12 @@
-import {combineReducers} from "redux";
-import { contacts } from "./reducers";
-import { phone } from './phone';
-
+import {combineReducers} from 'redux'
+import {contacts} from './contacts';
+import {phone} from './phone';
+import {twilio} from './twilio';
+import {sidebar} from './sidebar';
 
 export default combineReducers({
   phone,
-  contacts
+  contacts,
+  twilio,
+  sidebar,
 });
-
-// export default rootReducer;

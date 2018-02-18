@@ -44,7 +44,7 @@ const theme = createMuiTheme({
 });
 
 
-class App2 extends Component {
+class App extends Component {
   componentWillUpdate = (nextProps, nextState) => {
     if (this.props.twilio.scriptLoaded === false && nextProps.twilio.scriptLoaded === true) {
       this.props.fetchCapabilityToken('/phonecalls/capabilityToken?client=reactweb');
@@ -116,7 +116,7 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
-App2.propTypes = {
+App.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
 };
@@ -125,4 +125,4 @@ export default withStyles(styles, {withTheme: true})(
   withRouter(connect(
     mapStateToProps,
     mapDispatchToProps
-  )(App2)));
+  )(App)));
