@@ -6,4 +6,4 @@ from .models import Person
 class PersonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Person
-        fields = ('name', 'phone_number', 'person_type')
+        fields = ('id', 'name', 'phone_number', 'person_type')

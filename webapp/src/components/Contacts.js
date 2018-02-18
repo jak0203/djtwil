@@ -1,18 +1,21 @@
-import React, {Component} from 'react'
-// import axios from "axios/index";
-// import axios from 'axios';
+import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import {Toolbar, ToolbarTitle} from 'material-ui/Toolbar';
-import {
-  Table,
+import PropTypes from 'prop-types';
+
+import { styles } from './Style';
+import { withStyles } from 'material-ui/styles';
+
+import Table, {
   TableBody,
-  TableHeader,
-  TableHeaderColumn,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TablePagination,
   TableRow,
-  TableRowColumn,
+  TableSortLabel,
 } from 'material-ui/Table';
-import Paper from 'material-ui/Paper'
-import { contactsFetchData } from "./actions/actions";
+
+import { contactsFetchData } from "./actions/contacts";
 
 const PaperStyle = {
   // height: 00,
@@ -109,6 +112,11 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Contacts);
+Contacts.propTypes = {
+  classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles, {withTheme: true})(connect(mapStateToProps, mapDispatchToProps)(Contacts));
 //
 // export default Contacts
